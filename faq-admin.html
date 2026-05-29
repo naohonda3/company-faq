@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社内FAQ 管理画面</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F4F3F0; --surface: #FFFFFF; --surface2: #EDECE8;
+  --border: #E0DDD7; --border2: #CBC8C1;
+  --text-primary: #1A1917; --text-secondary: #65625D; --text-muted: #9C9890;
+  --accent: #2563EB; --accent-light: #EFF4FF; --accent-hover: #1D4ED8;
+  --danger: #DC2626; --danger-light: #FEF2F2;
+  --success: #16A34A; --success-light: #F0FDF4;
+  --warn: #D97706; --warn-light: #FFFBEB;
+  --sidebar-w: 220px; --radius: 9px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.09);
+  --tr: 0.16s ease;
+}
+body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.6; }
+#login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 44px 40px; width: 100%; max-width: 400px; box-shadow: var(--shadow-md); text-align: center; }
+.login-logo { width: 48px; height: 48px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.login-logo svg { width: 26px; height: 26px; }
+.login-card h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.login-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+.btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 20px; background: var(--surface); border: 1.5px solid var(--border2); border-radius: 9px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text-primary); transition: all var(--tr); margin-bottom: 12px; }
+.btn-google:hover { border-color: var(--accent); background: var(--accent-light); }
+.login-note { font-size: 12px; color: var(--text-muted); margin-top: 16px; }
+#app { display: none; min-height: 100vh; }
+#app.show { display: flex; }
+.sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; }
+.sidebar-top { padding: 18px 16px 16px; border-bottom: 1px solid var(--border); }
+.sidebar-logo { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.sidebar-logo-icon { width: 26px; height: 26px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sidebar-logo-icon svg { width: 14px; height: 14px; }
+.sidebar-badge { font-size: 10px; background: var(--surface2); color: var(--text-muted); padding: 1px 6px; border-radius: 4px; margin-left: auto; }
+.sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+.nav-section-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; padding: 8px 6px 4px; text-transform: uppercase; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; cursor: pointer; color: var(--text-secondary); font-size: 13.5px; font-weight: 500; transition: all var(--tr); margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-item:hover { background: var(--bg); color: var(--text-primary); }
+.nav-item.active { background: var(--accent-light); color: var(--accent); }
+.nav-badge { margin-left: auto; background: var(--warn); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+.sidebar-user { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 9px; }
+.user-avatar { width: 30px; height: 30px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: 11px; color: var(--text-muted); }
+.btn-logout { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 5px; display: flex; transition: color var(--tr); }
+.btn-logout:hover { color: var(--danger); }
+.btn-logout svg { width: 15px; height: 15px; }
+.main-content { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+.page-header h1 { font-size: 17px; font-weight: 700; }
+.page-header-actions { display: flex; gap: 10px; }
+.content-area { padding: 24px 28px; }
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+.stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.stat-sub { font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; }
+.stat-card.warn .stat-value { color: var(--warn); }
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.table-toolbar-title { font-size: 14px; font-weight: 600; flex: 1; }
+.search-sm { position: relative; }
+.search-sm svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-muted); pointer-events: none; }
+.search-sm input { padding: 7px 10px 7px 28px; border: 1px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 13px; background: var(--bg); color: var(--text-primary); outline: none; width: 200px; transition: border-color var(--tr); }
+.search-sm input:focus { border-color: var(--accent); }
+table { width: 100%; border-collapse: collapse; }
+thead th { padding: 10px 16px; text-align: left; font-size: 11.5px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; background: var(--bg); border-bottom: 1px solid var(--border); }
+tbody tr { border-bottom: 1px solid var(--border); transition: background var(--tr); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg); }
+tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
+.td-q { max-width: 320px; }
+.td-q-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.td-cat span { background: var(--surface2); color: var(--text-secondary); border-radius: 5px; padding: 2px 8px; font-size: 12px; font-weight: 500; }
+.td-actions { white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 7px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all var(--tr); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-sm { padding: 5px 10px; font-size: 12.5px; }
+.btn-ghost { background: none; border: 1px solid var(--border); color: var(--text-secondary); }
+.btn-ghost:hover { border-color: var(--border2); color: var(--text-primary); }
+.btn-danger { background: none; border: 1px solid transparent; color: var(--danger); }
+.btn-danger:hover { background: var(--danger-light); border-color: #FECACA; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #15803D; }
+.btn svg { width: 13px; height: 13px; }
+.status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 5px; font-size: 12px; font-weight: 500; }
+.status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.status-published { background: var(--success-light); color: var(--success); }
+.status-published::before { background: var(--success); }
+.status-pending { background: var(--warn-light); color: var(--warn); }
+.status-pending::before { background: var(--warn); }
+.status-draft { background: var(--surface2); color: var(--text-secondary); }
+.status-draft::before { background: var(--text-muted); }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+.overlay.show { display: flex; }
+.modal { background: var(--surface); border-radius: 14px; width: 100%; max-width: 540px; box-shadow: var(--shadow-md); max-height: 90vh; display: flex; flex-direction: column; }
+.modal-head { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.modal-head h2 { font-size: 16px; font-weight: 700; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 6px; display: flex; transition: color var(--tr); }
+.modal-close:hover { color: var(--text-primary); }
+.modal-close svg { width: 18px; height: 18px; }
+.modal-body { padding: 20px 24px; overflow-y: auto; }
+.modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.form-label .req { color: var(--danger); margin-left: 2px; }
+.form-input, .form-textarea, .form-select { width: 100%; padding: 9px 12px; font-family: inherit; font-size: 14px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text-primary); outline: none; transition: border-color var(--tr); }
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent); background: var(--surface); }
+.form-textarea { min-height: 120px; resize: vertical; line-height: 1.7; }
+.form-select { cursor: pointer; }
+.section { display: none; }
+.section.active { display: block; }
+.submission-list { display: flex; flex-direction: column; gap: 10px; }
+.sub-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+.sub-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.sub-q { font-size: 14px; font-weight: 500; flex: 1; line-height: 1.5; }
+.sub-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.sub-actions { display: flex; gap: 8px; }
+.error-banner { background: #FEF2F2; border: 1px solid #FECACA; border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--danger); margin-bottom: 16px; display: none; }
+.error-banner.show { display: block; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(16px); background: #1A1917; color: #fff; padding: 11px 18px; border-radius: 9px; font-size: 13.5px; font-weight: 500; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 400; display: flex; align-items: center; gap: 8px; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast svg { width: 16px; height: 16px; color: #4ade80; }
+.confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; display: none; align-items: center; justify-content: center; padding: 20px; }
+.confirm-overlay.show { display: flex; }
+.confirm-box { background: var(--surface); border-radius: 12px; padding: 24px; width: 100%; max-width: 360px; box-shadow: var(--shadow-md); text-align: center; }
+.confirm-icon { width: 44px; height: 44px; background: var(--danger-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+.confirm-icon svg { width: 22px; height: 22px; color: var(--danger); }
+.confirm-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.confirm-box p { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+.confirm-actions { display: flex; gap: 10px; justify-content: center; }
+.btn-confirm-cancel { padding: 8px 18px; background: none; border: 1px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--text-secondary); }
+.btn-confirm-ok { padding: 8px 18px; background: var(--danger); border: none; border-radius: 7px; font-family: inherit; font-size: 13px; font-weight: 500; color: #fff; cursor: pointer; }
+.empty-row td { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+    <h1>社内FAQ 管理画面</h1>
+    <p>管理者アカウントでログインしてください</p>
+    <button class="btn-google" onclick="mockLogin()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Googleアカウントでログイン
+    </button>
+    <p class="login-note">※ 管理者として登録されたGoogleアカウントのみログインできます</p>
+  </div>
+</div>
+
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        社内FAQ <span class="sidebar-badge">管理</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">メニュー</div>
+      <button class="nav-item active" onclick="showSection('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        ダッシュボード
+      </button>
+      <button class="nav-item" onclick="showSection('faq-list',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        FAQ一覧
+      </button>
+      <button class="nav-item" onclick="showSection('submissions',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        投稿された質問 <span class="nav-badge" id="pending-badge">0</span>
+      </button>
+      <div class="nav-section-label" style="margin-top:8px">設定</div>
+      <button class="nav-item" onclick="showSection('users',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        管理者設定
+      </button>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">管</div>
+      <div class="user-info"><div class="user-name">管理者</div><div class="user-role">管理者</div></div>
+      <button class="btn-logout" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <!-- DASHBOARD -->
+    <div id="section-dashboard" class="section active">
+      <div class="page-header">
+        <h1>ダッシュボード</h1>
+        <button class="btn btn-ghost btn-sm" onclick="loadAll()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-4.36"/></svg>
+          再読み込み
+        </button>
+      </div>
+      <div class="content-area">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-label">公開中のFAQ</div><div class="stat-value" id="stat-published">—</div><div class="stat-sub">件</div></div>
+          <div class="stat-card warn"><div class="stat-label">承認待ちの質問</div><div class="stat-value" id="stat-pending">—</div><div class="stat-sub">件　要確認</div></div>
+          <div class="stat-card"><div class="stat-label">カテゴリ数</div><div class="stat-value" id="stat-cats">—</div><div class="stat-sub">カテゴリ</div></div>
+          <div class="stat-card"><div class="stat-label">FAQ総数</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub">件</div></div>
+        </div>
+        <div class="error-banner" id="dash-error"></div>
+        <div class="table-card">
+          <div class="table-toolbar"><span class="table-toolbar-title">承認待ちの質問</span></div>
+          <table><thead><tr><th>質問内容</th><th>投稿者</th><th>投稿日</th><th>操作</th></tr></thead>
+          <tbody id="dashboard-pending"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ一覧 -->
+    <div id="section-faq-list" class="section">
+      <div class="page-header">
+        <h1>FAQ一覧</h1>
+        <button class="btn btn-primary" onclick="openFaqModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          FAQ追加
+        </button>
+      </div>
+      <div class="content-area">
+        <div class="error-banner" id="faq-error"></div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <span class="table-toolbar-title" id="faq-count-label">読み込み中…</span>
+            <div class="search-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="キーワード検索…" oninput="filterFaqTable(this.value)">
+            </div>
+          </div>
+          <table><thead><tr><th style="width:40%">質問</th><th>カテゴリ</th><th>ステータス</th><th>更新日</th><th>操作</th></tr></thead>
+          <tbody id="faq-table-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 投稿 -->
+    <div id="section-submissions" class="section">
+      <div class="page-header"><h1>投稿された質問</h1></div>
+      <div class="content-area">
+        <div class="error-banner" id="sub-error"></div>
+        <div class="submission-list" id="submission-list"></div>
+      </div>
+    </div>
+
+    <!-- 管理者 -->
+    <div id="section-users" class="section">
+      <div class="page-header">
+        <h1>管理者設定</h1>
+        <button class="btn btn-primary" onclick="openUserModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          管理者追加
+        </button>
+      </div>
+      <div class="content-area">
+        <div class="table-card">
+          <table><thead><tr><th>名前</th><th>メールアドレス</th><th>権限</th><th>追加日</th><th>操作</th></tr></thead>
+          <tbody id="users-table-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ Modal -->
+<div class="overlay" id="faq-modal-overlay" onclick="handleOverlay(event,'faq-modal-overlay')">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="faq-modal-title">FAQ追加</h2>
+      <button class="modal-close" onclick="closeModal('faq-modal-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="faq-edit-id">
+      <div class="form-group"><label class="form-label">カテゴリ <span class="req">*</span></label>
+        <select class="form-select" id="faq-cat"><option value="">選択してください</option><option>勤怠・休暇</option><option>経費・精算</option><option>IT・システム</option><option>給与・福利厚生</option><option>社内手続き</option></select></div>
+      <div class="form-group"><label class="form-label">質問（Q） <span class="req">*</span></label><input class="form-input" type="text" id="faq-q"></div>
+      <div class="form-group"><label class="form-label">回答（A） <span class="req">*</span></label><textarea class="form-textarea" id="faq-a"></textarea></div>
+      <div class="form-group"><label class="form-label">ステータス</label>
+        <select class="form-select" id="faq-status"><option value="published">公開</option><option value="draft">下書き</option></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('faq-modal-overlay')">キャンセル</button>
+      <button class="btn btn-primary" id="faq-save-btn" onclick="saveFaq()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Approve Modal -->
+<div class="overlay" id="approve-modal-overlay" onclick="handleOverlay(event,'approve-modal-overlay')">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>FAQとして承認</h2>
+      <button class="modal-close" onclick="closeModal('approve-modal-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="approve-sub-id">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">内容を確認・編集してFAQに追加してください。</p>
+      <div class="form-group"><label class="form-label">カテゴリ <span class="req">*</span></label>
+        <select class="form-select" id="approve-cat"><option value="">選択してください</option><option>勤怠・休暇</option><option>経費・精算</option><option>IT・システム</option><option>給与・福利厚生</option><option>社内手続き</option></select></div>
+      <div class="form-group"><label class="form-label">質問（Q） <span class="req">*</span></label><input class="form-input" type="text" id="approve-q"></div>
+      <div class="form-group"><label class="form-label">回答（A） <span class="req">*</span></label><textarea class="form-textarea" id="approve-a" placeholder="回答を入力してください"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('approve-modal-overlay')">キャンセル</button>
+      <button class="btn btn-success" id="approve-btn" onclick="approveSubmission()">承認してFAQに追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="overlay" id="user-modal-overlay" onclick="handleOverlay(event,'user-modal-overlay')">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <h2>管理者追加</h2>
+      <button class="modal-close" onclick="closeModal('user-modal-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">名前 <span class="req">*</span></label><input class="form-input" type="text" id="new-user-name" placeholder="例：佐藤 花子"></div>
+      <div class="form-group"><label class="form-label">Googleメールアドレス <span class="req">*</span></label><input class="form-input" type="email" id="new-user-email" placeholder="例：hanako@company.co.jp"></div>
+      <div class="form-group"><label class="form-label">権限</label>
+        <select class="form-select" id="new-user-role"><option value="editor">編集者（追加・編集のみ）</option><option value="admin">管理者（承認・ユーザー管理も可）</option></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('user-modal-overlay')">キャンセル</button>
+      <button class="btn btn-primary" onclick="addUser()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></div>
+    <h3>削除してよいですか？</h3>
+    <p id="confirm-msg">この操作は取り消せません。</p>
+    <div class="confirm-actions">
+      <button class="btn-confirm-cancel" onclick="cancelConfirm()">キャンセル</button>
+      <button class="btn-confirm-ok" id="confirm-ok-btn">削除する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+const API_KEY = 'AIzaSyAl6yDbHBP_-P6TXNwNW3f_rE45xjpZSrM';
+const SHEET_ID = '14TvzrqwT-Q-Qk1eBG7QnPvY-t0Yu0d5SKa79F2izojE';
+const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
+
+let faqRows = [], subRows = [], userRows = [], confirmCallback = null;
+
+async function sheetsGet(range) {
+  const res = await fetch(`${BASE_URL}/${encodeURIComponent(range)}?key=${API_KEY}`);
+  if (!res.ok) throw new Error(`${res.status}`);
+  return (await res.json()).values || [];
+}
+
+function mockLogin() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  loadAll();
+}
+function logout() {
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+async function loadAll() {
+  await Promise.all([loadFaqs(), loadSubmissions(), loadUsers()]);
+  updateStats();
+}
+
+async function loadFaqs() {
+  try {
+    const rows = await sheetsGet('faqs');
+    faqRows = rows.slice(1).map((r,i) => ({ rowNum:i+2, id:r[0]||String(i), category:r[1]||'', q:r[2]||'', a:r[3]||'', status:r[4]||'published', updated:r[5]||'' })).filter(r=>r.q);
+    renderFaqTable(faqRows); showBanner('faq-error','');
+  } catch(e) {
+    showBanner('faq-error','FAQデータの読み込みに失敗しました。スプレッドシートの共有設定（リンクを知っている全員→閲覧者）をご確認ください。');
+    faqRows = []; renderFaqTable(faqRows);
+  }
+}
+
+async function loadSubmissions() {
+  try {
+    const rows = await sheetsGet('submissions');
+    subRows = rows.slice(1).map((r,i) => ({ rowNum:i+2, id:r[0]||String(i), q:r[1]||'', name:r[2]||'（匿名）', date:r[3]||'', status:r[4]||'pending' })).filter(r=>r.q&&r.status==='pending');
+    const local = JSON.parse(localStorage.getItem('faq_submissions')||'[]');
+    local.forEach((l,i) => subRows.push({ rowNum:-1, id:`local-${i}`, q:l.question, name:l.name, date:l.date, status:'pending' }));
+    renderSubmissions(); showBanner('sub-error','');
+  } catch(e) {
+    subRows = []; renderSubmissions();
+  }
+}
+
+async function loadUsers() {
+  try {
+    const rows = await sheetsGet('users');
+    userRows = rows.slice(1).map((r,i) => ({ rowNum:i+2, id:r[0]||String(i), name:r[1]||'', email:r[2]||'', role:r[3]||'editor', added:r[4]||'' })).filter(r=>r.name);
+    if (!userRows.length) userRows = [{ rowNum:2, id:'1', name:'管理者', email:'admin@company.co.jp', role:'admin', added:'' }];
+    renderUsers();
+  } catch(e) { userRows = [{ rowNum:2, id:'1', name:'管理者', email:'admin@company.co.jp', role:'admin', added:'' }]; renderUsers(); }
+}
+
+function updateStats() {
+  document.getElementById('stat-published').textContent = faqRows.filter(f=>f.status==='published').length;
+  const p = subRows.filter(s=>s.status==='pending').length;
+  document.getElementById('stat-pending').textContent = p;
+  document.getElementById('pending-badge').textContent = p;
+  document.getElementById('stat-cats').textContent = new Set(faqRows.map(f=>f.category).filter(Boolean)).size;
+  document.getElementById('stat-total').textContent = faqRows.length;
+  renderDashboardPending();
+}
+
+function renderDashboardPending() {
+  const pending = subRows.filter(s=>s.status==='pending').slice(0,5);
+  const tbody = document.getElementById('dashboard-pending');
+  if (!pending.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="4">承認待ちの質問はありません</td></tr>'; return; }
+  tbody.innerHTML = pending.map(s=>`<tr><td class="td-q"><div class="td-q-text">${s.q}</div></td><td>${s.name}</td><td>${s.date}</td><td class="td-actions"><button class="btn btn-sm btn-success" onclick="openApproveModal('${s.id}')">承認</button><button class="btn btn-sm btn-danger" onclick="confirmDelete('submission','${s.id}','この質問を却下しますか？')">却下</button></td></tr>`).join('');
+}
+
+function renderFaqTable(data) {
+  document.getElementById('faq-count-label').textContent = `全 ${data.length} 件`;
+  const tbody = document.getElementById('faq-table-body');
+  if (!data.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="5">FAQがありません</td></tr>'; return; }
+  tbody.innerHTML = data.map(f=>`<tr><td class="td-q"><div class="td-q-text" title="${f.q}">${f.q}</div></td><td class="td-cat"><span>${f.category}</span></td><td><span class="status status-${f.status}">${f.status==='published'?'公開中':'下書き'}</span></td><td style="color:var(--text-muted);font-size:13px">${f.updated}</td><td class="td-actions"><button class="btn btn-sm btn-ghost" onclick="openFaqModal('${f.id}')">編集</button><button class="btn btn-sm btn-danger" onclick="confirmDelete('faq','${f.id}','削除しますか？')">削除</button></td></tr>`).join('');
+}
+
+function filterFaqTable(val) {
+  const q = val.toLowerCase();
+  renderFaqTable(!q ? faqRows : faqRows.filter(f => f.q.toLowerCase().includes(q)||f.a.toLowerCase().includes(q)||f.category.toLowerCase().includes(q)));
+}
+
+function openFaqModal(id) {
+  document.getElementById('faq-edit-id').value = id||'';
+  if (id) {
+    const f = faqRows.find(x=>x.id===id);
+    document.getElementById('faq-modal-title').textContent = 'FAQ編集';
+    document.getElementById('faq-cat').value = f.category;
+    document.getElementById('faq-q').value = f.q;
+    document.getElementById('faq-a').value = f.a;
+    document.getElementById('faq-status').value = f.status;
+  } else {
+    document.getElementById('faq-modal-title').textContent = 'FAQ追加';
+    ['faq-cat','faq-q','faq-a'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('faq-status').value='published';
+  }
+  document.getElementById('faq-modal-overlay').classList.add('show');
+}
+
+async function saveFaq() {
+  const cat=document.getElementById('faq-cat').value, q=document.getElementById('faq-q').value.trim(), a=document.getElementById('faq-a').value.trim(), status=document.getElementById('faq-status').value;
+  if (!cat||!q||!a) { showToast('カテゴリ・質問・回答はすべて必須です'); return; }
+  const btn=document.getElementById('faq-save-btn'); btn.textContent='保存中…'; btn.disabled=true;
+  const today=new Date().toISOString().slice(0,10);
+  const editId=document.getElementById('faq-edit-id').value;
+  if (editId) {
+    const idx=faqRows.findIndex(f=>f.id===editId);
+    faqRows[idx]={...faqRows[idx],category:cat,q,a,status,updated:today};
+    showToast('更新しました（スプレッドシート反映はOAuth接続後）');
+  } else {
+    const newId=String(Date.now());
+    faqRows.unshift({rowNum:-1,id:newId,category:cat,q,a,status,updated:today});
+    const stored=JSON.parse(localStorage.getItem('faq_faqs')||'[]');
+    stored.push([newId,cat,q,a,status,today]);
+    localStorage.setItem('faq_faqs',JSON.stringify(stored));
+    showToast('追加しました（スプレッドシート反映はOAuth接続後）');
+  }
+  btn.textContent='保存する'; btn.disabled=false;
+  closeModal('faq-modal-overlay'); renderFaqTable(faqRows); updateStats();
+}
+
+function renderSubmissions() {
+  const pending=subRows.filter(s=>s.status==='pending');
+  const list=document.getElementById('submission-list');
+  if (!pending.length) { list.innerHTML='<div style="text-align:center;padding:48px;color:var(--text-muted);font-size:13px">承認待ちの質問はありません</div>'; return; }
+  list.innerHTML=pending.map(s=>`<div class="sub-card"><div class="sub-card-header"><div class="sub-q">${s.q}</div><span class="status status-pending">承認待ち</span></div><div class="sub-meta">投稿者：${s.name}　／　${s.date}</div><div class="sub-actions"><button class="btn btn-sm btn-success" onclick="openApproveModal('${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>FAQとして承認</button><button class="btn btn-sm btn-danger" onclick="confirmDelete('submission','${s.id}','却下しますか？')">却下</button></div></div>`).join('');
+}
+
+function openApproveModal(subId) {
+  const s=subRows.find(x=>x.id===subId);
+  document.getElementById('approve-sub-id').value=subId;
+  document.getElementById('approve-q').value=s.q;
+  document.getElementById('approve-a').value='';
+  document.getElementById('approve-cat').value='';
+  document.getElementById('approve-modal-overlay').classList.add('show');
+}
+
+async function approveSubmission() {
+  const subId=document.getElementById('approve-sub-id').value, cat=document.getElementById('approve-cat').value, q=document.getElementById('approve-q').value.trim(), a=document.getElementById('approve-a').value.trim();
+  if (!cat||!q||!a) { showToast('カテゴリ・質問・回答はすべて必須です'); return; }
+  const btn=document.getElementById('approve-btn'); btn.textContent='処理中…'; btn.disabled=true;
+  const today=new Date().toISOString().slice(0,10), newId=String(Date.now());
+  faqRows.unshift({rowNum:-1,id:newId,category:cat,q,a,status:'published',updated:today});
+  subRows=subRows.filter(s=>s.id!==subId);
+  btn.textContent='承認してFAQに追加'; btn.disabled=false;
+  closeModal('approve-modal-overlay');
+  showToast('FAQに追加しました（スプレッドシート反映はOAuth接続後）');
+  renderFaqTable(faqRows); renderSubmissions(); updateStats();
+}
+
+function renderUsers() {
+  document.getElementById('users-table-body').innerHTML=userRows.map((u,i)=>`<tr><td><strong>${u.name}</strong></td><td style="color:var(--text-secondary)">${u.email}</td><td><span class="status ${u.role==='admin'?'status-published':'status-draft'}">${u.role==='admin'?'管理者':'編集者'}</span></td><td style="color:var(--text-muted);font-size:13px">${u.added}</td><td class="td-actions">${i!==0?`<button class="btn btn-sm btn-danger" onclick="confirmDelete('user','${u.id}','削除しますか？')">削除</button>`:'<span style="font-size:12px;color:var(--text-muted)">（自分）</span>'}</td></tr>`).join('');
+}
+function openUserModal() {
+  ['new-user-name','new-user-email'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('new-user-role').value='editor';
+  document.getElementById('user-modal-overlay').classList.add('show');
+}
+async function addUser() {
+  const name=document.getElementById('new-user-name').value.trim(), email=document.getElementById('new-user-email').value.trim(), role=document.getElementById('new-user-role').value;
+  if (!name||!email) { showToast('名前とメールアドレスは必須です'); return; }
+  const today=new Date().toISOString().slice(0,10), newId=String(Date.now());
+  userRows.push({rowNum:-1,id:newId,name,email,role,added:today});
+  closeModal('user-modal-overlay'); showToast('管理者を追加しました'); renderUsers();
+}
+
+function confirmDelete(type,id,msg) {
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-overlay').classList.add('show');
+  confirmCallback=()=>{
+    if(type==='faq') { faqRows=faqRows.filter(f=>f.id!==id); renderFaqTable(faqRows); }
+    if(type==='submission') { subRows=subRows.filter(s=>s.id!==id); renderSubmissions(); }
+    if(type==='user') { userRows=userRows.filter(u=>u.id!==id); renderUsers(); }
+    updateStats(); showToast('削除しました');
+  };
+}
+document.getElementById('confirm-ok-btn').addEventListener('click',()=>{ document.getElementById('confirm-overlay').classList.remove('show'); if(confirmCallback){confirmCallback();confirmCallback=null;} });
+function cancelConfirm() { document.getElementById('confirm-overlay').classList.remove('show'); confirmCallback=null; }
+
+function showSection(name,btn) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function handleOverlay(e,id) { if(e.target===document.getElementById(id)) closeModal(id); }
+function showBanner(id,msg) { const el=document.getElementById(id); if(!el)return; el.textContent=msg; el.classList.toggle('show',!!msg); }
+function showToast(msg) { const t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){['faq-modal-overlay','approve-modal-overlay','user-modal-overlay'].forEach(id=>closeModal(id));cancelConfirm();} });
+</script>
+</body>
+</html>
