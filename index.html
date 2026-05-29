@@ -26,8 +26,8 @@
     --open-border: #86EFAC;
     --open-text: #166534;
     --radius: 10px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
     --transition: 0.18s ease;
   }
 
@@ -40,120 +40,63 @@
     line-height: 1.7;
   }
 
-  /* ===== HEADER ===== */
   header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     padding: 0 24px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    position: sticky; top: 0; z-index: 100;
   }
   .header-inner {
-    max-width: 860px;
-    margin: 0 auto;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    max-width: 860px; margin: 0 auto;
+    height: 60px; display: flex;
+    align-items: center; justify-content: space-between;
   }
   .logo {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-size: 16px; font-weight: 700;
     letter-spacing: -0.02em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex; align-items: center; gap: 8px;
   }
   .logo-icon {
-    width: 28px; height: 28px;
-    background: var(--accent);
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; background: var(--accent);
+    border-radius: 7px; display: flex; align-items: center; justify-content: center;
   }
   .logo-icon svg { width: 16px; height: 16px; }
-  .header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
   .btn-ask {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-size: 13.5px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 8px; padding: 8px 16px;
+    font-size: 13.5px; font-weight: 500; font-family: inherit;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
     transition: background var(--transition);
   }
   .btn-ask:hover { background: var(--accent-hover); }
   .btn-admin {
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 400;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all var(--transition);
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; font-family: inherit;
+    cursor: pointer; transition: all var(--transition);
+    text-decoration: none; display: inline-flex; align-items: center;
   }
   .btn-admin:hover { border-color: var(--text-secondary); color: var(--text-primary); }
 
-  /* ===== HERO ===== */
   .hero {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     padding: 36px 24px 32px;
   }
-  .hero-inner {
-    max-width: 860px;
-    margin: 0 auto;
-  }
-  .hero h1 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 6px;
-    color: var(--text-primary);
-  }
-  .hero p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 20px;
-  }
-
-  /* ===== SEARCH ===== */
-  .search-wrap {
-    position: relative;
-  }
+  .hero-inner { max-width: 860px; margin: 0 auto; }
+  .hero h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .hero p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+  .search-wrap { position: relative; }
   .search-wrap svg {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px; height: 18px;
-    color: var(--text-muted);
-    pointer-events: none;
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; color: var(--text-muted); pointer-events: none;
   }
   #search-input {
-    width: 100%;
-    padding: 13px 14px 13px 42px;
-    font-size: 15px;
-    font-family: inherit;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text-primary);
-    outline: none;
+    width: 100%; padding: 13px 14px 13px 42px;
+    font-size: 15px; font-family: inherit;
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    background: var(--bg); color: var(--text-primary); outline: none;
     transition: border-color var(--transition), box-shadow var(--transition);
   }
   #search-input:focus {
@@ -163,311 +106,168 @@
   }
   #search-input::placeholder { color: var(--text-muted); }
 
-  /* ===== MAIN ===== */
-  .main {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 28px 24px 60px;
-  }
+  .main { max-width: 860px; margin: 0 auto; padding: 28px 24px 60px; }
 
-  /* ===== CATEGORY TABS ===== */
-  .category-row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-  }
+  .category-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
   .cat-btn {
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition);
-    white-space: nowrap;
+    padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text-secondary); font-family: inherit;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all var(--transition); white-space: nowrap;
   }
-  .cat-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .cat-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
+  .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .cat-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-  /* ===== RESULT COUNT ===== */
-  .result-meta {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 14px;
-  }
+  .result-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
   .result-meta span { color: var(--text-secondary); font-weight: 500; }
 
-  /* ===== FAQ ITEM ===== */
   .faq-list { display: flex; flex-direction: column; gap: 8px; }
-
   .faq-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
     transition: box-shadow var(--transition), border-color var(--transition);
   }
   .faq-item:hover { box-shadow: var(--shadow-sm); border-color: #C8C4BC; }
-
   .faq-question {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
-    background: none;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    font-family: inherit;
-    color: var(--text-primary);
-    font-size: 14.5px;
-    font-weight: 500;
-    line-height: 1.5;
-    transition: background var(--transition);
+    width: 100%; display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; background: none; border: none;
+    text-align: left; cursor: pointer; font-family: inherit;
+    color: var(--text-primary); font-size: 14.5px; font-weight: 500;
+    line-height: 1.5; transition: background var(--transition);
   }
   .faq-question:hover { background: var(--bg); }
   .faq-question.open { background: var(--accent-light); }
-
   .q-badge {
-    flex-shrink: 0;
-    width: 24px; height: 24px;
-    background: var(--accent);
-    color: #fff;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 700;
+    flex-shrink: 0; width: 24px; height: 24px;
+    background: var(--accent); color: #fff; border-radius: 6px;
+    font-size: 12px; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
   }
-  .faq-question.open .q-badge { background: var(--accent); }
-
   .q-text { flex: 1; }
-
-  .faq-tags {
-    display: flex;
-    gap: 5px;
-    flex-shrink: 0;
-  }
+  .faq-tags { display: flex; gap: 5px; flex-shrink: 0; }
   .tag {
-    padding: 2px 8px;
-    background: var(--tag-bg);
-    color: var(--tag-text);
-    border-radius: 4px;
-    font-size: 11.5px;
-    font-weight: 500;
+    padding: 2px 8px; background: var(--tag-bg); color: var(--tag-text);
+    border-radius: 4px; font-size: 11.5px; font-weight: 500;
   }
-
   .chevron {
-    flex-shrink: 0;
-    width: 18px; height: 18px;
-    color: var(--text-muted);
-    transition: transform var(--transition);
+    flex-shrink: 0; width: 18px; height: 18px;
+    color: var(--text-muted); transition: transform var(--transition);
   }
   .faq-question.open .chevron { transform: rotate(180deg); }
-
-  /* ===== ANSWER ===== */
   .faq-answer {
-    display: none;
-    padding: 0 18px 18px 56px;
+    display: none; padding: 0 18px 18px 56px;
     border-top: 1px solid var(--border);
   }
   .faq-answer.open { display: block; }
-
   .a-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--open-text);
-    background: var(--open-bg);
-    border: 1px solid var(--open-border);
-    border-radius: 5px;
-    padding: 2px 8px;
-    margin: 14px 0 10px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 700; color: var(--open-text);
+    background: var(--open-bg); border: 1px solid var(--open-border);
+    border-radius: 5px; padding: 2px 8px; margin: 14px 0 10px;
   }
-  .a-text {
-    font-size: 14px;
-    color: var(--text-primary);
-    line-height: 1.8;
-  }
+  .a-text { font-size: 14px; color: var(--text-primary); line-height: 1.8; }
   .a-text p + p { margin-top: 8px; }
-  .a-updated {
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
+  .a-updated { margin-top: 12px; font-size: 12px; color: var(--text-muted); }
 
-  /* ===== EMPTY STATE ===== */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    display: none;
+  /* ローディング */
+  .loading {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-muted); font-size: 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
   }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* エラー */
+  .error-state {
+    background: #FEF2F2; border: 1px solid #FECACA;
+    border-radius: var(--radius); padding: 16px 20px;
+    font-size: 14px; color: #DC2626; display: none;
+  }
+  .error-state.show { display: block; }
+
+  .empty-state { text-align: center; padding: 60px 20px; display: none; }
   .empty-state.show { display: block; }
   .empty-icon {
-    width: 56px; height: 56px;
-    background: var(--surface2);
-    border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 16px;
+    width: 56px; height: 56px; background: var(--surface2); border-radius: 16px;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
   }
   .empty-icon svg { width: 28px; height: 28px; color: var(--text-muted); }
   .empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
   .empty-state p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
   .btn-ask-empty {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background var(--transition);
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 8px; padding: 10px 20px;
+    font-size: 14px; font-weight: 500; font-family: inherit;
+    cursor: pointer; transition: background var(--transition);
   }
   .btn-ask-empty:hover { background: var(--accent-hover); }
 
-  /* ===== MODAL (質問フォーム) ===== */
   .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.35);
-    z-index: 200;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px;
   }
   .modal-overlay.show { display: flex; }
   .modal {
-    background: var(--surface);
-    border-radius: 14px;
-    padding: 28px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: var(--shadow-md);
+    background: var(--surface); border-radius: 14px; padding: 28px;
+    width: 100%; max-width: 480px; box-shadow: var(--shadow-md);
   }
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   .modal h2 { font-size: 17px; font-weight: 700; }
   .modal-close {
-    background: none; border: none;
-    cursor: pointer; color: var(--text-muted);
-    padding: 4px;
-    border-radius: 6px;
-    display: flex;
-    transition: color var(--transition);
+    background: none; border: none; cursor: pointer; color: var(--text-muted);
+    padding: 4px; border-radius: 6px; display: flex; transition: color var(--transition);
   }
   .modal-close:hover { color: var(--text-primary); }
   .modal-close svg { width: 20px; height: 20px; }
-  .modal-desc {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 20px;
-  }
+  .modal-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
   .form-group { margin-bottom: 16px; }
-  .form-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    color: var(--text-primary);
-  }
+  .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
   .form-label span { color: var(--text-muted); font-weight: 400; }
   .form-input, .form-textarea {
-    width: 100%;
-    padding: 10px 12px;
-    font-family: inherit;
-    font-size: 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    background: var(--bg);
-    color: var(--text-primary);
-    outline: none;
-    transition: border-color var(--transition);
-    resize: none;
+    width: 100%; padding: 10px 12px; font-family: inherit; font-size: 14px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text-primary); outline: none;
+    transition: border-color var(--transition); resize: none;
   }
-  .form-input:focus, .form-textarea:focus {
-    border-color: var(--accent);
-    background: var(--surface);
-  }
+  .form-input:focus, .form-textarea:focus { border-color: var(--accent); background: var(--surface); }
   .form-textarea { min-height: 100px; line-height: 1.6; }
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-  }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
   .btn-cancel {
-    padding: 9px 16px;
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 13.5px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all var(--transition);
+    padding: 9px 16px; background: none; border: 1px solid var(--border);
+    border-radius: 8px; font-family: inherit; font-size: 13.5px;
+    cursor: pointer; color: var(--text-secondary); transition: all var(--transition);
   }
   .btn-cancel:hover { border-color: var(--text-secondary); color: var(--text-primary); }
   .btn-submit {
-    padding: 9px 20px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 13.5px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background var(--transition);
+    padding: 9px 20px; background: var(--accent); color: #fff; border: none;
+    border-radius: 8px; font-family: inherit; font-size: 13.5px;
+    font-weight: 500; cursor: pointer; transition: background var(--transition);
   }
   .btn-submit:hover { background: var(--accent-hover); }
+  .btn-submit:disabled { background: var(--text-muted); cursor: not-allowed; }
 
-  /* ===== TOAST ===== */
   .toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
+    position: fixed; bottom: 28px; left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: #1A1917;
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-    pointer-events: none;
-    z-index: 300;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    background: #1A1917; color: #fff; padding: 12px 20px;
+    border-radius: 10px; font-size: 14px; font-weight: 500;
+    opacity: 0; transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none; z-index: 300;
+    display: flex; align-items: center; gap: 8px;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast svg { width: 18px; height: 18px; color: #4ade80; }
 
   @media (max-width: 600px) {
-    .header-inner { gap: 8px; }
     .faq-tags { display: none; }
     .hero h1 { font-size: 19px; }
     .main { padding: 20px 16px 50px; }
@@ -476,7 +276,6 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="header-inner">
     <div class="logo">
@@ -488,7 +287,7 @@
       社内FAQ
     </div>
     <div class="header-actions">
-      <button class="btn-admin" onclick="alert('管理者ログイン画面へ（今後実装）')">管理者</button>
+      <a class="btn-admin" href="faq-admin.html">管理者</a>
       <button class="btn-ask" onclick="openModal()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         質問する
@@ -497,7 +296,6 @@
   </div>
 </header>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
     <h1>よくある質問</h1>
@@ -511,18 +309,15 @@
   </div>
 </div>
 
-<!-- MAIN -->
 <main class="main">
-  <!-- カテゴリタブ -->
   <div class="category-row" id="category-row"></div>
-
-  <!-- 件数 -->
   <div class="result-meta" id="result-meta"></div>
-
-  <!-- FAQ一覧 -->
+  <div id="error-state" class="error-state"></div>
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    データを読み込んでいます…
+  </div>
   <div class="faq-list" id="faq-list"></div>
-
-  <!-- 空状態 -->
   <div class="empty-state" id="empty-state">
     <div class="empty-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -538,7 +333,6 @@
   </div>
 </main>
 
-<!-- 質問投稿モーダル -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
     <div class="modal-header">
@@ -558,99 +352,87 @@
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
-      <button class="btn-submit" onclick="submitQuestion()">送信する</button>
+      <button class="btn-submit" id="submit-btn" onclick="submitQuestion()">送信する</button>
     </div>
   </div>
 </div>
 
-<!-- トースト通知 -->
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
   <span id="toast-msg"></span>
 </div>
 
 <script>
-// ===== モックデータ =====
-const FAQ_DATA = [
-  {
-    id: 1, category: '勤怠・休暇',
-    q: '有給休暇はいつから取得できますか？',
-    a: '入社後6ヶ月が経過し、全労働日の8割以上出勤した場合、10日間の有給休暇が付与されます。\n\nその後は1年ごとに付与日数が増え、最大20日となります。取得の際は、就業管理システムから申請してください。',
-    updated: '2025-10-15'
-  },
-  {
-    id: 2, category: '勤怠・休暇',
-    q: '残業時間の上限はありますか？',
-    a: '法定の時間外労働は月45時間、年360時間が上限です（36協定の範囲内）。\n\n特別条項がある場合でも月100時間未満となります。残業が発生する際は事前に上長への申告が必要です。',
-    updated: '2025-11-02'
-  },
-  {
-    id: 3, category: '勤怠・休暇',
-    q: 'テレワーク時の勤怠はどう記録しますか？',
-    a: '就業管理システムから通常と同様に打刻してください。開始・終了時刻に加え、外出・戻りの打刻も忘れずに行ってください。\n\n通信障害などで打刻できなかった場合は、翌営業日以内に上長へ申告し、修正申請を行ってください。',
-    updated: '2025-12-01'
-  },
-  {
-    id: 4, category: '経費・精算',
-    q: '経費精算はどこから申請しますか？',
-    a: '経費精算システム（社内ポータルのトップページからアクセス）から申請してください。\n\n領収書は必ずPDFまたは画像でアップロードしてください。原本は3ヶ月保管の上、総務部へ提出が必要です。',
-    updated: '2025-09-20'
-  },
-  {
-    id: 5, category: '経費・精算',
-    q: '交通費の申請期限はいつですか？',
-    a: '当月分の交通費は翌月5日（土日祝の場合は翌営業日）が申請期限です。期限を過ぎると翌月払いとなります。\n\n定期代の支給については、総務部に申請書を提出してください。',
-    updated: '2025-09-20'
-  },
-  {
-    id: 6, category: 'IT・システム',
-    q: 'パスワードを忘れた場合はどうすればよいですか？',
-    a: 'ログイン画面の「パスワードを忘れた方はこちら」からリセット手続きができます。\n\nリセットリンクは登録済みのメールアドレスに送信されます。メールアドレス自体がわからない場合は、情報システム部（内線：XXX）へお問い合わせください。',
-    updated: '2026-01-10'
-  },
-  {
-    id: 7, category: 'IT・システム',
-    q: '社用PCの修理・交換はどこに依頼しますか？',
-    a: '情報システム部のヘルプデスク（社内ポータル「ITサポート」）からチケットを起票してください。\n\n緊急の場合は内線XXXに直接連絡してください。修理期間中の代替機貸し出しも対応しています。',
-    updated: '2025-11-18'
-  },
-  {
-    id: 8, category: '給与・福利厚生',
-    q: '給与明細はどこで確認できますか？',
-    a: '給与明細は毎月25日に社内ポータルの「マイページ」→「給与情報」から確認できます。\n\nPDFでのダウンロードも可能です。紙での交付は廃止されていますのでご注意ください。',
-    updated: '2025-08-01'
-  },
-  {
-    id: 9, category: '給与・福利厚生',
-    q: '社会保険の扶養に家族を追加したい場合は？',
-    a: '総務部に「健康保険 被扶養者（異動）届」を提出してください。書類は社内ポータルのフォームライブラリからダウンロードできます。\n\n添付書類（戸籍謄本など）が必要な場合があります。詳細は総務部（内線：XXX）にご確認ください。',
-    updated: '2025-07-15'
-  },
-  {
-    id: 10, category: '社内手続き',
-    q: '住所変更の届け出はどうすればよいですか？',
-    a: '社内ポータルの「各種手続き」→「住所変更届」から申請してください。\n\n変更後2週間以内に届け出るようにしてください。マイナンバーカードや住民票の更新も忘れずに行ってください。',
-    updated: '2025-10-05'
-  },
-];
+// ===== 設定 =====
+const API_KEY = 'AIzaSyAl6yDbHBP_-P6TXNwNW3f_rE45xjpZSrM';
+const SHEET_ID = '14TvzrqwT-Q-Qk1eBG7QnPvY-t0Yu0d5SKa79F2izojE';
+const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
 
 // ===== 状態 =====
+let allFaqs = [];
 let currentCategory = 'すべて';
 let currentQuery = '';
 let openId = null;
 
-// カテゴリ一覧
-const categories = ['すべて', ...new Set(FAQ_DATA.map(f => f.category))];
-
 // ===== 初期化 =====
-function init() {
-  renderCategories();
-  renderFAQ();
+async function init() {
+  await loadFaqs();
 }
 
+// ===== Google Sheetsからデータ取得 =====
+async function loadFaqs() {
+  showLoading(true);
+  showError('');
+  try {
+    const url = `${BASE_URL}/faqs?key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const rows = data.values || [];
+
+    // 1行目はヘッダーなのでスキップ、2行目以降がデータ
+    // 列順: id, category, q, a, status, updated
+    allFaqs = rows.slice(1)
+      .filter(r => r[4] === 'published') // statusが'published'のみ
+      .map((r, i) => ({
+        id: i + 1,
+        category: r[1] || '',
+        q: r[2] || '',
+        a: r[3] || '',
+        updated: r[5] || ''
+      }))
+      .filter(f => f.q && f.a);
+
+    renderCategories();
+    renderFAQ();
+  } catch (e) {
+    showError('データの読み込みに失敗しました。スプレッドシートの共有設定とAPIキーをご確認ください。');
+    console.error(e);
+  } finally {
+    showLoading(false);
+  }
+}
+
+// ===== 投稿をSheetsに書き込む =====
+async function writeSubmission(name, question) {
+  const now = new Date().toISOString().slice(0, 10);
+  // submissionsシートに追記: id(自動), question, name, date, status
+  const values = [[``, question, name || '（匿名）', now, 'pending']];
+  const url = `${BASE_URL}/submissions:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+
+  // 注意: 書き込みはOAuth必須のためここではローカルストレージに一時保存
+  // Google OAuth接続後にこの部分をAPI呼び出しに置き換える
+  const stored = JSON.parse(localStorage.getItem('faq_submissions') || '[]');
+  stored.push({ question, name: name || '（匿名）', date: now, status: 'pending' });
+  localStorage.setItem('faq_submissions', JSON.stringify(stored));
+  return true;
+}
+
+// ===== カテゴリ =====
 function renderCategories() {
+  const cats = ['すべて', ...new Set(allFaqs.map(f => f.category).filter(Boolean))];
   const row = document.getElementById('category-row');
-  row.innerHTML = categories.map(cat => `
+  row.innerHTML = cats.map(cat => `
     <button class="cat-btn${cat === currentCategory ? ' active' : ''}" onclick="selectCategory('${cat}')">${cat}</button>
   `).join('');
 }
@@ -669,7 +451,7 @@ function handleSearch(val) {
 }
 
 function getFiltered() {
-  return FAQ_DATA.filter(f => {
+  return allFaqs.filter(f => {
     const matchCat = currentCategory === 'すべて' || f.category === currentCategory;
     const q = currentQuery.toLowerCase();
     const matchQ = !q || f.q.toLowerCase().includes(q) || f.a.toLowerCase().includes(q) || f.category.toLowerCase().includes(q);
@@ -683,13 +465,14 @@ function renderFAQ() {
   const empty = document.getElementById('empty-state');
   const meta = document.getElementById('result-meta');
 
+  if (allFaqs.length === 0) return;
+
   if (filtered.length === 0) {
     list.innerHTML = '';
     empty.classList.add('show');
     meta.innerHTML = '';
     if (currentQuery) {
       document.getElementById('empty-title').textContent = `「${currentQuery}」に一致するFAQはありませんでした`;
-      document.getElementById('empty-desc').textContent = '別のキーワードで試すか、質問を送ってください';
     }
   } else {
     empty.classList.remove('show');
@@ -715,7 +498,7 @@ function renderItem(f) {
           回答
         </div>
         <div class="a-text">${aLines}</div>
-        <div class="a-updated">最終更新：${f.updated}</div>
+        ${f.updated ? `<div class="a-updated">最終更新：${f.updated}</div>` : ''}
       </div>
     </div>
   `;
@@ -732,32 +515,41 @@ function toggleItem(id) {
 }
 
 // ===== モーダル =====
-function openModal() {
-  document.getElementById('modal-overlay').classList.add('show');
-  setTimeout(() => document.getElementById('form-question').focus(), 100);
-}
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('show');
-}
+function openModal() { document.getElementById('modal-overlay').classList.add('show'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
 
-function submitQuestion() {
+async function submitQuestion() {
   const q = document.getElementById('form-question').value.trim();
   if (!q) {
-    document.getElementById('form-question').focus();
     document.getElementById('form-question').style.borderColor = '#EF4444';
     setTimeout(() => document.getElementById('form-question').style.borderColor = '', 1500);
     return;
   }
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '送信中…';
+  const name = document.getElementById('form-name').value.trim();
+  await writeSubmission(name, q);
+  btn.disabled = false;
+  btn.textContent = '送信する';
   closeModal();
   document.getElementById('form-name').value = '';
   document.getElementById('form-question').value = '';
   showToast('質問を送信しました。管理者が確認後、FAQに追加されます。');
 }
 
-// ===== トースト =====
+// ===== UI ユーティリティ =====
+function showLoading(v) {
+  document.getElementById('loading').style.display = v ? 'flex' : 'none';
+}
+function showError(msg) {
+  const el = document.getElementById('error-state');
+  el.textContent = msg;
+  el.classList.toggle('show', !!msg);
+}
 function showToast(msg) {
   const t = document.getElementById('toast');
   document.getElementById('toast-msg').textContent = msg;
@@ -765,7 +557,6 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// Escキーでモーダルを閉じる
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 init();
