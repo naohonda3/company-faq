@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社内FAQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE9;
+    --border: #E2DED7;
+    --text-primary: #1A1917;
+    --text-secondary: #6B6760;
+    --text-muted: #9B9890;
+    --accent: #2563EB;
+    --accent-light: #EFF4FF;
+    --accent-hover: #1D4ED8;
+    --tag-bg: #EDEAE4;
+    --tag-text: #4A4844;
+    --open-bg: #F0FDF4;
+    --open-border: #86EFAC;
+    --open-text: #166534;
+    --radius: 10px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    --transition: 0.18s ease;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 16px; height: 16px; }
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn-ask {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13.5px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background var(--transition);
+  }
+  .btn-ask:hover { background: var(--accent-hover); }
+  .btn-admin {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 400;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .btn-admin:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 36px 24px 32px;
+  }
+  .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+  }
+  .hero p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* ===== SEARCH ===== */
+  .search-wrap {
+    position: relative;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px; height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  #search-input {
+    width: 100%;
+    padding: 13px 14px 13px 42px;
+    font-size: 15px;
+    font-family: inherit;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  #search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    background: var(--surface);
+  }
+  #search-input::placeholder { color: var(--text-muted); }
+
+  /* ===== MAIN ===== */
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+
+  /* ===== CATEGORY TABS ===== */
+  .category-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .cat-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+  .cat-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .cat-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ===== RESULT COUNT ===== */
+  .result-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .result-meta span { color: var(--text-secondary); font-weight: 500; }
+
+  /* ===== FAQ ITEM ===== */
+  .faq-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .faq-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: box-shadow var(--transition), border-color var(--transition);
+  }
+  .faq-item:hover { box-shadow: var(--shadow-sm); border-color: #C8C4BC; }
+
+  .faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text-primary);
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.5;
+    transition: background var(--transition);
+  }
+  .faq-question:hover { background: var(--bg); }
+  .faq-question.open { background: var(--accent-light); }
+
+  .q-badge {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .faq-question.open .q-badge { background: var(--accent); }
+
+  .q-text { flex: 1; }
+
+  .faq-tags {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .tag {
+    padding: 2px 8px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+
+  .chevron {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    color: var(--text-muted);
+    transition: transform var(--transition);
+  }
+  .faq-question.open .chevron { transform: rotate(180deg); }
+
+  /* ===== ANSWER ===== */
+  .faq-answer {
+    display: none;
+    padding: 0 18px 18px 56px;
+    border-top: 1px solid var(--border);
+  }
+  .faq-answer.open { display: block; }
+
+  .a-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--open-text);
+    background: var(--open-bg);
+    border: 1px solid var(--open-border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    margin: 14px 0 10px;
+  }
+  .a-text {
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.8;
+  }
+  .a-text p + p { margin-top: 8px; }
+  .a-updated {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    display: none;
+  }
+  .empty-state.show { display: block; }
+  .empty-icon {
+    width: 56px; height: 56px;
+    background: var(--surface2);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .empty-icon svg { width: 28px; height: 28px; color: var(--text-muted); }
+  .empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+  .btn-ask-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .btn-ask-empty:hover { background: var(--accent-hover); }
+
+  /* ===== MODAL (質問フォーム) ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-md);
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .modal h2 { font-size: 17px; font-weight: 700; }
+  .modal-close {
+    background: none; border: none;
+    cursor: pointer; color: var(--text-muted);
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    transition: color var(--transition);
+  }
+  .modal-close:hover { color: var(--text-primary); }
+  .modal-close svg { width: 20px; height: 20px; }
+  .modal-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+  }
+  .form-label span { color: var(--text-muted); font-weight: 400; }
+  .form-input, .form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color var(--transition);
+    resize: none;
+  }
+  .form-input:focus, .form-textarea:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+  .form-textarea { min-height: 100px; line-height: 1.6; }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .btn-cancel {
+    padding: 9px 16px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13.5px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all var(--transition);
+  }
+  .btn-cancel:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+  .btn-submit {
+    padding: 9px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .btn-submit:hover { background: var(--accent-hover); }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1A1917;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast svg { width: 18px; height: 18px; color: #4ade80; }
+
+  @media (max-width: 600px) {
+    .header-inner { gap: 8px; }
+    .faq-tags { display: none; }
+    .hero h1 { font-size: 19px; }
+    .main { padding: 20px 16px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      社内FAQ
+    </div>
+    <div class="header-actions">
+      <button class="btn-admin" onclick="alert('管理者ログイン画面へ（今後実装）')">管理者</button>
+      <button class="btn-ask" onclick="openModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        質問する
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <h1>よくある質問</h1>
+    <p>知りたいことをキーワードで検索するか、カテゴリから探してください</p>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="search-input" placeholder="例：有給休暇、経費申請、テレワーク…" oninput="handleSearch(this.value)">
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- カテゴリタブ -->
+  <div class="category-row" id="category-row"></div>
+
+  <!-- 件数 -->
+  <div class="result-meta" id="result-meta"></div>
+
+  <!-- FAQ一覧 -->
+  <div class="faq-list" id="faq-list"></div>
+
+  <!-- 空状態 -->
+  <div class="empty-state" id="empty-state">
+    <div class="empty-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
+    <h3 id="empty-title">該当するFAQが見つかりませんでした</h3>
+    <p id="empty-desc">別のキーワードで検索するか、質問を送ってください</p>
+    <button class="btn-ask-empty" onclick="openModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      質問を送る
+    </button>
+  </div>
+</main>
+
+<!-- 質問投稿モーダル -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>FAQにない質問を送る</h2>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p class="modal-desc">管理者が確認後、FAQに追加します。回答まで数日かかる場合があります。</p>
+    <div class="form-group">
+      <label class="form-label" for="form-name">お名前 <span>（任意）</span></label>
+      <input class="form-input" type="text" id="form-name" placeholder="例：山田 太郎">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="form-question">質問内容 <span>（必須）</span></label>
+      <textarea class="form-textarea" id="form-question" placeholder="知りたいことを具体的に書いてください"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-submit" onclick="submitQuestion()">送信する</button>
+    </div>
+  </div>
+</div>
+
+<!-- トースト通知 -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ===== モックデータ =====
+const FAQ_DATA = [
+  {
+    id: 1, category: '勤怠・休暇',
+    q: '有給休暇はいつから取得できますか？',
+    a: '入社後6ヶ月が経過し、全労働日の8割以上出勤した場合、10日間の有給休暇が付与されます。\n\nその後は1年ごとに付与日数が増え、最大20日となります。取得の際は、就業管理システムから申請してください。',
+    updated: '2025-10-15'
+  },
+  {
+    id: 2, category: '勤怠・休暇',
+    q: '残業時間の上限はありますか？',
+    a: '法定の時間外労働は月45時間、年360時間が上限です（36協定の範囲内）。\n\n特別条項がある場合でも月100時間未満となります。残業が発生する際は事前に上長への申告が必要です。',
+    updated: '2025-11-02'
+  },
+  {
+    id: 3, category: '勤怠・休暇',
+    q: 'テレワーク時の勤怠はどう記録しますか？',
+    a: '就業管理システムから通常と同様に打刻してください。開始・終了時刻に加え、外出・戻りの打刻も忘れずに行ってください。\n\n通信障害などで打刻できなかった場合は、翌営業日以内に上長へ申告し、修正申請を行ってください。',
+    updated: '2025-12-01'
+  },
+  {
+    id: 4, category: '経費・精算',
+    q: '経費精算はどこから申請しますか？',
+    a: '経費精算システム（社内ポータルのトップページからアクセス）から申請してください。\n\n領収書は必ずPDFまたは画像でアップロードしてください。原本は3ヶ月保管の上、総務部へ提出が必要です。',
+    updated: '2025-09-20'
+  },
+  {
+    id: 5, category: '経費・精算',
+    q: '交通費の申請期限はいつですか？',
+    a: '当月分の交通費は翌月5日（土日祝の場合は翌営業日）が申請期限です。期限を過ぎると翌月払いとなります。\n\n定期代の支給については、総務部に申請書を提出してください。',
+    updated: '2025-09-20'
+  },
+  {
+    id: 6, category: 'IT・システム',
+    q: 'パスワードを忘れた場合はどうすればよいですか？',
+    a: 'ログイン画面の「パスワードを忘れた方はこちら」からリセット手続きができます。\n\nリセットリンクは登録済みのメールアドレスに送信されます。メールアドレス自体がわからない場合は、情報システム部（内線：XXX）へお問い合わせください。',
+    updated: '2026-01-10'
+  },
+  {
+    id: 7, category: 'IT・システム',
+    q: '社用PCの修理・交換はどこに依頼しますか？',
+    a: '情報システム部のヘルプデスク（社内ポータル「ITサポート」）からチケットを起票してください。\n\n緊急の場合は内線XXXに直接連絡してください。修理期間中の代替機貸し出しも対応しています。',
+    updated: '2025-11-18'
+  },
+  {
+    id: 8, category: '給与・福利厚生',
+    q: '給与明細はどこで確認できますか？',
+    a: '給与明細は毎月25日に社内ポータルの「マイページ」→「給与情報」から確認できます。\n\nPDFでのダウンロードも可能です。紙での交付は廃止されていますのでご注意ください。',
+    updated: '2025-08-01'
+  },
+  {
+    id: 9, category: '給与・福利厚生',
+    q: '社会保険の扶養に家族を追加したい場合は？',
+    a: '総務部に「健康保険 被扶養者（異動）届」を提出してください。書類は社内ポータルのフォームライブラリからダウンロードできます。\n\n添付書類（戸籍謄本など）が必要な場合があります。詳細は総務部（内線：XXX）にご確認ください。',
+    updated: '2025-07-15'
+  },
+  {
+    id: 10, category: '社内手続き',
+    q: '住所変更の届け出はどうすればよいですか？',
+    a: '社内ポータルの「各種手続き」→「住所変更届」から申請してください。\n\n変更後2週間以内に届け出るようにしてください。マイナンバーカードや住民票の更新も忘れずに行ってください。',
+    updated: '2025-10-05'
+  },
+];
+
+// ===== 状態 =====
+let currentCategory = 'すべて';
+let currentQuery = '';
+let openId = null;
+
+// カテゴリ一覧
+const categories = ['すべて', ...new Set(FAQ_DATA.map(f => f.category))];
+
+// ===== 初期化 =====
+function init() {
+  renderCategories();
+  renderFAQ();
+}
+
+function renderCategories() {
+  const row = document.getElementById('category-row');
+  row.innerHTML = categories.map(cat => `
+    <button class="cat-btn${cat === currentCategory ? ' active' : ''}" onclick="selectCategory('${cat}')">${cat}</button>
+  `).join('');
+}
+
+function selectCategory(cat) {
+  currentCategory = cat;
+  openId = null;
+  renderCategories();
+  renderFAQ();
+}
+
+function handleSearch(val) {
+  currentQuery = val.trim();
+  openId = null;
+  renderFAQ();
+}
+
+function getFiltered() {
+  return FAQ_DATA.filter(f => {
+    const matchCat = currentCategory === 'すべて' || f.category === currentCategory;
+    const q = currentQuery.toLowerCase();
+    const matchQ = !q || f.q.toLowerCase().includes(q) || f.a.toLowerCase().includes(q) || f.category.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+}
+
+function renderFAQ() {
+  const filtered = getFiltered();
+  const list = document.getElementById('faq-list');
+  const empty = document.getElementById('empty-state');
+  const meta = document.getElementById('result-meta');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '';
+    empty.classList.add('show');
+    meta.innerHTML = '';
+    if (currentQuery) {
+      document.getElementById('empty-title').textContent = `「${currentQuery}」に一致するFAQはありませんでした`;
+      document.getElementById('empty-desc').textContent = '別のキーワードで試すか、質問を送ってください';
+    }
+  } else {
+    empty.classList.remove('show');
+    meta.innerHTML = `${currentCategory !== 'すべて' ? `<span>${currentCategory}</span> · ` : ''}全 <span>${filtered.length}</span> 件`;
+    list.innerHTML = filtered.map(f => renderItem(f)).join('');
+  }
+}
+
+function renderItem(f) {
+  const isOpen = openId === f.id;
+  const aLines = f.a.split('\n').filter(Boolean).map(l => `<p>${l}</p>`).join('');
+  return `
+    <div class="faq-item" id="item-${f.id}">
+      <button class="faq-question${isOpen ? ' open' : ''}" onclick="toggleItem(${f.id})">
+        <span class="q-badge">Q</span>
+        <span class="q-text">${f.q}</span>
+        <span class="faq-tags"><span class="tag">${f.category}</span></span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer${isOpen ? ' open' : ''}">
+        <div class="a-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          回答
+        </div>
+        <div class="a-text">${aLines}</div>
+        <div class="a-updated">最終更新：${f.updated}</div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleItem(id) {
+  openId = openId === id ? null : id;
+  renderFAQ();
+  if (openId) {
+    setTimeout(() => {
+      document.getElementById(`item-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 50);
+  }
+}
+
+// ===== モーダル =====
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('form-question').focus(), 100);
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function submitQuestion() {
+  const q = document.getElementById('form-question').value.trim();
+  if (!q) {
+    document.getElementById('form-question').focus();
+    document.getElementById('form-question').style.borderColor = '#EF4444';
+    setTimeout(() => document.getElementById('form-question').style.borderColor = '', 1500);
+    return;
+  }
+  closeModal();
+  document.getElementById('form-name').value = '';
+  document.getElementById('form-question').value = '';
+  showToast('質問を送信しました。管理者が確認後、FAQに追加されます。');
+}
+
+// ===== トースト =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Escキーでモーダルを閉じる
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+init();
+</script>
+</body>
+</html>
