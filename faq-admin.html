@@ -436,7 +436,7 @@ window.addEventListener('load', () => {
   if (saved && savedUser) {
     try {
       accessToken = saved;
-      currentUser = JSON.parse(savedUser);
+      currentUser = JSON.parse(decodeURIComponent(savedUser));
       enterApp();
     } catch(e) {
       sessionStorage.removeItem('faq_token');
@@ -468,7 +468,7 @@ async function handleCredential(response) {
       }
       accessToken = tokenResponse.access_token;
       sessionStorage.setItem('faq_token', accessToken);
-      sessionStorage.setItem('faq_user', JSON.stringify(currentUser));
+      sessionStorage.setItem('faq_user', encodeURIComponent(JSON.stringify(currentUser)));
       enterApp();
     },
   });
