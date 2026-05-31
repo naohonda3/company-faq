@@ -434,9 +434,14 @@ window.addEventListener('load', () => {
   const saved = sessionStorage.getItem('faq_token');
   const savedUser = sessionStorage.getItem('faq_user');
   if (saved && savedUser) {
-    accessToken = saved;
-    currentUser = JSON.parse(savedUser);
-    enterApp();
+    try {
+      accessToken = saved;
+      currentUser = JSON.parse(savedUser);
+      enterApp();
+    } catch(e) {
+      sessionStorage.removeItem('faq_token');
+      sessionStorage.removeItem('faq_user');
+    }
   }
 });
 
@@ -473,13 +478,26 @@ async function handleCredential(response) {
 function enterApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').classList.add('show');
-  // ユーザー情報をサイドバーに表示
-  document.getElementById('user-name').textContent = currentUser.name || 'ログイン中';
-  document.getElementById('user-email-display').textContent = currentUser.email || '';
+
+  // 名前・メールはtextContentで安全に設定（文字化け防止）
+  const nameEl = document.getElementById('user-name');
+  const emailEl = document.getElementById('user-email-display');
+  const avatarEl = document.getElementById('user-avatar');
+
+  nameEl.textContent = currentUser.name || 'ログイン中';
+  emailEl.textContent = currentUser.email || '';
+
   if (currentUser.picture) {
-    document.getElementById('user-avatar').innerHTML = `<img src="${currentUser.picture}" alt="">`;
+    const img = document.createElement('img');
+    img.src = currentUser.picture;
+    img.alt = '';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+    avatarEl.innerHTML = '';
+    avatarEl.appendChild(img);
   } else {
-    document.getElementById('user-avatar').textContent = (currentUser.name||'管')[0];
+    // 日本語名の場合は先頭1文字をコードポイントで正しく取得
+    const firstChar = [...(currentUser.name || '管')][0] || '管';
+    avatarEl.textContent = firstChar;
   }
   loadAll();
 }
