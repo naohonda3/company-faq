@@ -6,7 +6,12 @@
 <title>社内FAQ 管理画面</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* フォント未読み込み時の文字化け防止 */
+  html { font-family: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; }
+</style>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -21,7 +26,7 @@
   --shadow-md: 0 4px 16px rgba(0,0,0,0.09);
   --tr: 0.16s ease;
 }
-body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.6; }
+body { font-family: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Meiryo, sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.6; }
 
 /* LOGIN */
 #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
