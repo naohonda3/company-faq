@@ -448,7 +448,11 @@ window.addEventListener('load', () => {
 // ===== JWT デコード（署名検証なし・表示用）=====
 function parseJwt(token) {
   try {
-    return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    const json = new TextDecoder('utf-8').decode(bytes);
+    return JSON.parse(json);
   } catch { return {}; }
 }
 
