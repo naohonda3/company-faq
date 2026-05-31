@@ -448,12 +448,20 @@ window.addEventListener('load', () => {
 // ===== JWT デコード（署名検証なし・表示用）=====
 function parseJwt(token) {
   try {
-    const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    // `atob` で復元したバイナリ文字列から正しく各バイト値を配列化する
     const binary = atob(base64);
-    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-    const json = new TextDecoder('utf-8').decode(bytes);
-    return JSON.parse(json);
-  } catch { return {}; }
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    // TextDecoder で UTF-8 として正しく復元
+    return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+  } catch (e) {
+    console.error('JWTのデコードに失敗しました:', e);
+    return {};
+  }
 }
 
 // ===== ログイン処理 =====
