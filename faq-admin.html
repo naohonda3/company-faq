@@ -507,12 +507,15 @@ function parseJwt(token) {
 }
 
 // ===== ログイン処理 =====
+// tokenClientをグローバルで保持（トークン再取得に使用）
+let tokenClient = null;
+
 async function handleCredential(response) {
   const payload = parseJwt(response.credential);
   currentUser = { name: payload.name, email: payload.email, picture: payload.picture };
 
   // アクセストークンを別途取得（書き込み用）
-  const tokenClient = google.accounts.oauth2.initTokenClient({
+  tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
     callback: async (tokenResponse) => {
@@ -522,11 +525,38 @@ async function handleCredential(response) {
       }
       accessToken = tokenResponse.access_token;
       sessionStorage.setItem('faq_token', accessToken);
+      sessionStorage.setItem('faq_token_time', String(Date.now()));
       sessionStorage.setItem('faq_user', encodeURIComponent(JSON.stringify(currentUser)));
       enterApp();
     },
   });
   tokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+// ===== トークン自動更新 =====
+// 書き込み前に呼び出し、50分以上経過していたら静かに再取得する
+async function ensureFreshToken() {
+  const tokenTime = Number(sessionStorage.getItem('faq_token_time') || '0');
+  const elapsed = (Date.now() - tokenTime) / 1000;
+  if (elapsed < 3000 && accessToken) return; // 50分未満なら何もしない
+
+  return new Promise((resolve, reject) => {
+    const tc = tokenClient || google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: () => {},
+    });
+    const prev = tc.callback;
+    tc.callback = (tokenResponse) => {
+      tc.callback = prev;
+      if (tokenResponse.error) { reject(new Error(tokenResponse.error)); return; }
+      accessToken = tokenResponse.access_token;
+      sessionStorage.setItem('faq_token', accessToken);
+      sessionStorage.setItem('faq_token_time', String(Date.now()));
+      resolve();
+    };
+    tc.requestAccessToken({ prompt: '' }); // promptなし＝バックグラウンド更新
+  });
 }
 
 function enterApp() {
@@ -580,6 +610,7 @@ async function sheetsGet(range) {
 }
 
 async function sheetsAppend(sheetName, values) {
+  await ensureFreshToken();
   if (!accessToken) throw new Error('未認証');
   const res = await fetch(
     `${BASE_URL}/${encodeURIComponent(sheetName)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
@@ -594,6 +625,7 @@ async function sheetsAppend(sheetName, values) {
 }
 
 async function sheetsBatchUpdate(requests) {
+  await ensureFreshToken();
   if (!accessToken) throw new Error('未認証');
   const res = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`,
@@ -608,6 +640,7 @@ async function sheetsBatchUpdate(requests) {
 }
 
 async function sheetsUpdate(range, values) {
+  await ensureFreshToken();
   if (!accessToken) throw new Error('未認証');
   const res = await fetch(
     `${BASE_URL}/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,
