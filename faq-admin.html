@@ -173,6 +173,14 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
 .btn-confirm-cancel { padding: 8px 18px; background: none; border: 1px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--text-secondary); }
 .btn-confirm-ok { padding: 8px 18px; background: var(--danger); border: none; border-radius: 7px; font-family: inherit; font-size: 13px; font-weight: 500; color: #fff; cursor: pointer; }
 .empty-row td { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; }
+.cat-filter-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.cat-filter-btn { padding: 5px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-secondary); font-family: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all var(--tr); }
+.cat-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.cat-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cat-warn { background: var(--warn-light); border: 1px solid #FCD34D; border-radius: 7px; padding: 10px 14px; font-size: 13px; color: var(--warn); margin-bottom: 12px; display: none; }
+.cat-warn.show { display: block; }
+.cat-new-notice { background: var(--accent-light); border: 1px solid #BFDBFE; border-radius: 7px; padding: 10px 14px; font-size: 13px; color: var(--accent); margin-bottom: 12px; display: none; }
+.cat-new-notice.show { display: block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
 </style>
@@ -282,9 +290,10 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
             <span class="table-toolbar-title" id="faq-count-label">読み込み中…</span>
             <div class="search-sm">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="キーワード検索…" oninput="filterFaqTable(this.value)">
+              <input type="text" id="faq-search-input" placeholder="キーワード検索…" oninput="filterFaqTable(this.value)">
             </div>
           </div>
+          <div class="cat-filter-row" id="faq-cat-filter-row"></div>
           <table><thead><tr><th style="width:40%">質問</th><th>カテゴリ</th><th>ステータス</th><th>更新日</th><th>操作</th></tr></thead>
           <tbody id="faq-table-body"></tbody></table>
         </div>
@@ -328,8 +337,13 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
     </div>
     <div class="modal-body">
       <input type="hidden" id="faq-edit-row">
-      <div class="form-group"><label class="form-label">カテゴリ <span class="req">*</span></label>
-        <select class="form-select" id="faq-cat"><option value="">選択してください</option><option>勤怠・休暇</option><option>経費・精算</option><option>IT・システム</option><option>給与・福利厚生</option><option>社内手続き</option></select></div>
+      <div class="form-group">
+        <label class="form-label">カテゴリ <span class="req">*</span></label>
+        <input class="form-input" type="text" id="faq-cat" placeholder="例：勤怠・休暇　（既存のカテゴリを入力するか新規作成）" list="faq-cat-list" oninput="checkCategoryInput(this.value)">
+        <datalist id="faq-cat-list"></datalist>
+        <div class="cat-warn" id="cat-similar-warn"></div>
+        <div class="cat-new-notice" id="cat-new-notice"></div>
+      </div>
       <div class="form-group"><label class="form-label">質問（Q） <span class="req">*</span></label><input class="form-input" type="text" id="faq-q"></div>
       <div class="form-group"><label class="form-label">回答（A） <span class="req">*</span></label><textarea class="form-textarea" id="faq-a"></textarea></div>
       <div class="form-group"><label class="form-label">ステータス</label>
@@ -352,8 +366,11 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
     <div class="modal-body">
       <input type="hidden" id="approve-sub-row">
       <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">内容を確認・編集してFAQに追加してください。</p>
-      <div class="form-group"><label class="form-label">カテゴリ <span class="req">*</span></label>
-        <select class="form-select" id="approve-cat"><option value="">選択してください</option><option>勤怠・休暇</option><option>経費・精算</option><option>IT・システム</option><option>給与・福利厚生</option><option>社内手続き</option></select></div>
+      <div class="form-group">
+        <label class="form-label">カテゴリ <span class="req">*</span></label>
+        <input class="form-input" type="text" id="approve-cat" placeholder="カテゴリを入力または選択" list="approve-cat-list">
+        <datalist id="approve-cat-list"></datalist>
+      </div>
       <div class="form-group"><label class="form-label">質問（Q） <span class="req">*</span></label><input class="form-input" type="text" id="approve-q"></div>
       <div class="form-group"><label class="form-label">回答（A） <span class="req">*</span></label><textarea class="form-textarea" id="approve-a" placeholder="回答を入力してください"></textarea></div>
     </div>
@@ -609,7 +626,10 @@ async function loadFaqs() {
       category: r[1]||'', q: r[2]||'', a: r[3]||'',
       status: r[4]||'published', updated: r[5]||''
     })).filter(r => r.q);
-    renderFaqTable(faqRows); showBanner('faq-error','');
+    renderCatFilterRow();
+    updateCatDatalist();
+    renderFaqTable(faqRows);
+    showBanner('faq-error','');
   } catch(e) {
     showBanner('faq-error', `FAQデータの読み込みに失敗しました（${e.message}）`);
     faqRows = []; renderFaqTable(faqRows);
@@ -668,11 +688,46 @@ function renderDashboardPending() {
 }
 
 // ===== FAQ一覧 =====
+let currentFaqCatFilter = 'すべて';
+
+function getCategories() {
+  return [...new Set(faqRows.map(f => f.category).filter(Boolean))].sort();
+}
+
+function renderCatFilterRow() {
+  const cats = ['すべて', ...getCategories()];
+  const row = document.getElementById('faq-cat-filter-row');
+  if (!row) return;
+  row.innerHTML = cats.map(c => `
+    <button class="cat-filter-btn${c === currentFaqCatFilter ? ' active' : ''}" onclick="selectFaqCatFilter('${c}')">${c}</button>
+  `).join('');
+}
+
+function selectFaqCatFilter(cat) {
+  currentFaqCatFilter = cat;
+  renderCatFilterRow();
+  const searchVal = document.getElementById('faq-search-input')?.value || '';
+  filterFaqTable(searchVal);
+}
+
+function updateCatDatalist() {
+  const cats = getCategories();
+  ['faq-cat-list', 'approve-cat-list'].forEach(id => {
+    const dl = document.getElementById(id);
+    if (dl) dl.innerHTML = cats.map(c => `<option value="${c}">`).join('');
+  });
+}
+
 function renderFaqTable(data) {
-  document.getElementById('faq-count-label').textContent = `全 ${data.length} 件`;
+  // カテゴリフィルター適用
+  const filtered = currentFaqCatFilter === 'すべて'
+    ? data
+    : data.filter(f => f.category === currentFaqCatFilter);
+  document.getElementById('faq-count-label').textContent =
+    currentFaqCatFilter === 'すべて' ? `全 ${filtered.length} 件` : `${currentFaqCatFilter}：${filtered.length} 件`;
   const tbody = document.getElementById('faq-table-body');
-  if (!data.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="5">FAQがありません</td></tr>'; return; }
-  tbody.innerHTML = data.map(f=>`<tr>
+  if (!filtered.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="5">FAQがありません</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(f=>`<tr>
     <td class="td-q"><div class="td-q-text" title="${f.q}">${f.q}</div></td>
     <td class="td-cat"><span>${f.category}</span></td>
     <td><span class="status status-${f.status}">${f.status==='published'?'公開中':'下書き'}</span></td>
@@ -685,14 +740,49 @@ function renderFaqTable(data) {
 
 function filterFaqTable(val) {
   const q = val.toLowerCase();
-  renderFaqTable(!q ? faqRows : faqRows.filter(f =>
+  const base = !q ? faqRows : faqRows.filter(f =>
     f.q.toLowerCase().includes(q)||f.a.toLowerCase().includes(q)||f.category.toLowerCase().includes(q)
-  ));
+  );
+  renderFaqTable(base);
+}
+
+// ===== カテゴリ類似チェック =====
+function checkCategoryInput(val) {
+  const warnEl = document.getElementById('cat-similar-warn');
+  const noticeEl = document.getElementById('cat-new-notice');
+  if (!warnEl || !noticeEl) return;
+  warnEl.classList.remove('show');
+  noticeEl.classList.remove('show');
+  const v = val.trim();
+  if (!v) return;
+  const cats = getCategories();
+  // 完全一致なら何も表示しない
+  if (cats.includes(v)) return;
+  // 部分一致チェック（既存カテゴリ名の単語がvalに含まれるか、または逆）
+  const similar = cats.filter(c => {
+    const cv = c.toLowerCase();
+    const vv = v.toLowerCase();
+    return cv.includes(vv) || vv.includes(cv) ||
+      cv.split(/[・\s]/).some(word => word.length > 1 && vv.includes(word)) ||
+      vv.split(/[・\s]/).some(word => word.length > 1 && cv.includes(word));
+  });
+  if (similar.length > 0) {
+    warnEl.textContent = `「${similar.join('」「')}」と同じカテゴリではないですか？既存のカテゴリはできるだけ統一してください。`;
+    warnEl.classList.add('show');
+  } else {
+    noticeEl.textContent = `「${v}」は新しいカテゴリです。本当に新規作成してよいか確認してから保存してください。`;
+    noticeEl.classList.add('show');
+  }
 }
 
 // ===== FAQ追加・編集 =====
 function openFaqModal(id) {
   document.getElementById('faq-edit-row').value = id||'';
+  // 警告リセット
+  ['cat-similar-warn','cat-new-notice'].forEach(i=>{
+    const el = document.getElementById(i);
+    if (el) el.classList.remove('show');
+  });
   if (id) {
     const f = faqRows.find(x=>x.id===id);
     document.getElementById('faq-modal-title').textContent = 'FAQ編集';
@@ -709,7 +799,7 @@ function openFaqModal(id) {
 }
 
 async function saveFaq() {
-  const cat    = document.getElementById('faq-cat').value;
+  const cat    = document.getElementById('faq-cat').value.trim();
   const q      = document.getElementById('faq-q').value.trim();
   const a      = document.getElementById('faq-a').value.trim();
   const status = document.getElementById('faq-status').value;
@@ -732,6 +822,8 @@ async function saveFaq() {
       showToast('FAQを追加しました');
     }
     closeModal('faq-modal-overlay');
+    renderCatFilterRow();
+    updateCatDatalist();
     renderFaqTable(faqRows);
     updateStats();
   } catch(e) {
