@@ -364,7 +364,7 @@
 
 <script>
 // ===== 設定 =====
-const API_KEY = 'AIzaSyCq23A03hGnxPI5aqlIqMn_kCm8QRnQnhk';
+const API_KEY = 'AIzaSyAl6yDbHBP_-P6TXNwNW3f_rE45xjpZSrM';
 const SHEET_ID = '14TvzrqwT-Q-Qk1eBG7QnPvY-t0Yu0d5SKa79F2izojE';
 const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
 
@@ -413,18 +413,18 @@ async function loadFaqs() {
   }
 }
 
-// ===== 投稿をSheetsに書き込む =====
-async function writeSubmission(name, question) {
-  const now = new Date().toISOString().slice(0, 10);
-  // submissionsシートに追記: id(自動), question, name, date, status
-  const values = [[``, question, name || '（匿名）', now, 'pending']];
-  const url = `${BASE_URL}/submissions:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+// ===== 投稿をSheetsに書き込む（GAS経由）=====
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxG_Fcz-dYdwrsPjFhWK6gcEk9_a7V5GFSvyGQYXeI3s-P34UZOxkOspsugqOj5HEzO/exec';
 
-  // 注意: 書き込みはOAuth必須のためここではローカルストレージに一時保存
-  // Google OAuth接続後にこの部分をAPI呼び出しに置き換える
-  const stored = JSON.parse(localStorage.getItem('faq_submissions') || '[]');
-  stored.push({ question, name: name || '（匿名）', date: now, status: 'pending' });
-  localStorage.setItem('faq_submissions', JSON.stringify(stored));
+async function writeSubmission(name, question) {
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ question, name: name || '（匿名）' })
+  });
+  if (!res.ok) throw new Error(`送信エラー: ${res.status}`);
+  const data = await res.json();
+  if (data.status !== 'ok') throw new Error(data.message || '送信に失敗しました');
   return true;
 }
 
@@ -532,13 +532,19 @@ async function submitQuestion() {
   btn.disabled = true;
   btn.textContent = '送信中…';
   const name = document.getElementById('form-name').value.trim();
-  await writeSubmission(name, q);
-  btn.disabled = false;
-  btn.textContent = '送信する';
-  closeModal();
-  document.getElementById('form-name').value = '';
-  document.getElementById('form-question').value = '';
-  showToast('質問を送信しました。管理者が確認後、FAQに追加されます。');
+  try {
+    await writeSubmission(name, q);
+    closeModal();
+    document.getElementById('form-name').value = '';
+    document.getElementById('form-question').value = '';
+    showToast('質問を送信しました。管理者が確認後、FAQに追加されます。');
+  } catch(e) {
+    showToast('送信に失敗しました。時間をおいて再度お試しください。');
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '送信する';
+  }
 }
 
 // ===== UI ユーティリティ =====
