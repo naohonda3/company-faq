@@ -173,6 +173,11 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
 .btn-confirm-cancel { padding: 8px 18px; background: none; border: 1px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--text-secondary); }
 .btn-confirm-ok { padding: 8px 18px; background: var(--danger); border: none; border-radius: 7px; font-family: inherit; font-size: 13px; font-weight: 500; color: #fff; cursor: pointer; }
 .empty-row td { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; }
+.bulk-bar { padding: 10px 18px; background: var(--accent-light); border-bottom: 1px solid #BFDBFE; display: none; align-items: center; gap: 12px; }
+.bulk-bar.show { display: flex; }
+.bulk-bar-label { font-size: 13px; color: var(--accent); font-weight: 600; flex: 1; }
+.cb-all { cursor: pointer; width: 15px; height: 15px; accent-color: var(--accent); }
+.cb-row { cursor: pointer; width: 15px; height: 15px; accent-color: var(--accent); }
 .cat-filter-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 18px; border-bottom: 1px solid var(--border); }
 .cat-filter-btn { padding: 5px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-secondary); font-family: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all var(--tr); }
 .cat-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -305,7 +310,16 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
             </div>
           </div>
           <div class="cat-filter-row" id="faq-cat-filter-row"></div>
-          <table><thead><tr><th style="width:40%">質問</th><th>カテゴリ</th><th>ステータス</th><th>更新日</th><th>操作</th></tr></thead>
+          <div class="bulk-bar" id="bulk-bar">
+            <span class="bulk-bar-label" id="bulk-bar-label">0件選択中</span>
+            <button class="btn btn-sm btn-ghost" onclick="bulkToggleStatus('published')">公開にする</button>
+            <button class="btn btn-sm btn-ghost" onclick="bulkToggleStatus('draft')">下書きにする</button>
+            <button class="btn btn-sm btn-danger" onclick="bulkDelete()">削除する</button>
+          </div>
+          <table><thead><tr>
+            <th style="width:36px"><input type="checkbox" class="cb-all" id="cb-all" onchange="toggleAllCheck(this.checked)"></th>
+            <th style="width:38%">質問</th><th>カテゴリ</th><th>ステータス</th><th>更新日</th><th>操作</th>
+          </tr></thead>
           <tbody id="faq-table-body"></tbody></table>
         </div>
       </div>
@@ -737,8 +751,11 @@ function renderFaqTable(data) {
   document.getElementById('faq-count-label').textContent =
     currentFaqCatFilter === 'すべて' ? `全 ${filtered.length} 件` : `${currentFaqCatFilter}：${filtered.length} 件`;
   const tbody = document.getElementById('faq-table-body');
-  if (!filtered.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="5">FAQがありません</td></tr>'; return; }
-  tbody.innerHTML = filtered.map(f=>`<tr>
+  // チェック状態リセット
+  updateBulkBar();
+  if (!filtered.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="6">FAQがありません</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(f=>`<tr data-id="${f.id}">
+    <td><input type="checkbox" class="cb-row" value="${f.id}" onchange="onRowCheck()"></td>
     <td class="td-q"><div class="td-q-text" title="${f.q}">${f.q}</div></td>
     <td class="td-cat"><span>${f.category}</span></td>
     <td><span class="status status-${f.status}">${f.status==='published'?'公開中':'下書き'}</span></td>
@@ -755,6 +772,93 @@ function filterFaqTable(val) {
     f.q.toLowerCase().includes(q)||f.a.toLowerCase().includes(q)||f.category.toLowerCase().includes(q)
   );
   renderFaqTable(base);
+}
+
+// ===== 一括操作 =====
+function getCheckedIds() {
+  return [...document.querySelectorAll('.cb-row:checked')].map(cb => cb.value);
+}
+
+function onRowCheck() {
+  updateBulkBar();
+  // 全選択チェックボックスの状態を同期
+  const all = document.querySelectorAll('.cb-row');
+  const checked = document.querySelectorAll('.cb-row:checked');
+  const cbAll = document.getElementById('cb-all');
+  if (cbAll) {
+    cbAll.indeterminate = checked.length > 0 && checked.length < all.length;
+    cbAll.checked = checked.length > 0 && checked.length === all.length;
+  }
+}
+
+function toggleAllCheck(checked) {
+  document.querySelectorAll('.cb-row').forEach(cb => cb.checked = checked);
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const ids = getCheckedIds();
+  const bar = document.getElementById('bulk-bar');
+  const label = document.getElementById('bulk-bar-label');
+  if (!bar) return;
+  if (ids.length > 0) {
+    bar.classList.add('show');
+    label.textContent = `${ids.length}件選択中`;
+  } else {
+    bar.classList.remove('show');
+    const cbAll = document.getElementById('cb-all');
+    if (cbAll) { cbAll.checked = false; cbAll.indeterminate = false; }
+  }
+}
+
+async function bulkToggleStatus(newStatus) {
+  const ids = getCheckedIds();
+  if (!ids.length) return;
+  const label = newStatus === 'published' ? '公開' : '下書き';
+  if (!confirm(`選択した ${ids.length} 件を「${label}」に変更しますか？`)) return;
+  const today = new Date().toISOString().slice(0,10);
+  let successCount = 0;
+  for (const id of ids) {
+    const f = faqRows.find(x => x.id === id);
+    if (!f) continue;
+    try {
+      await sheetsUpdate(`faqs!A${f.rowNum}:F${f.rowNum}`, [f.id, f.category, f.q, f.a, newStatus, today]);
+      const idx = faqRows.findIndex(x => x.id === id);
+      faqRows[idx] = { ...f, status: newStatus, updated: today };
+      successCount++;
+    } catch(e) {
+      console.error('更新失敗:', id, e);
+    }
+  }
+  showToast(`${successCount}件を${label}に変更しました`);
+  renderCatFilterRow();
+  renderFaqTable(faqRows);
+  updateStats();
+}
+
+async function bulkDelete() {
+  const ids = getCheckedIds();
+  if (!ids.length) return;
+  if (!confirm(`選択した ${ids.length} 件を削除しますか？この操作は取り消せません。`)) return;
+  // 行番号の大きい順に削除（行がずれないよう）
+  const targets = ids
+    .map(id => faqRows.find(x => x.id === id))
+    .filter(Boolean)
+    .sort((a, b) => b.rowNum - a.rowNum);
+  let successCount = 0;
+  for (const f of targets) {
+    try {
+      if (f.rowNum > 0) await sheetsDeleteRow('faqs', f.rowNum);
+      faqRows = faqRows.filter(x => x.id !== f.id);
+      successCount++;
+    } catch(e) {
+      console.error('削除失敗:', f.id, e);
+    }
+  }
+  showToast(`${successCount}件を削除しました`);
+  renderCatFilterRow();
+  renderFaqTable(faqRows);
+  updateStats();
 }
 
 // ===== カテゴリ類似チェック =====
