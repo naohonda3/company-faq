@@ -304,7 +304,7 @@
       社内FAQ
     </div>
     <div class="header-actions">
-      <a class="btn-admin" href="faq-admin.html">管理者</a>
+      <button class="btn-admin" onclick="openAdminTab()">管理者</button>
       <button class="btn-ask" onclick="openModal()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         質問する
@@ -653,6 +653,14 @@ function showToast(msg) {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ===== 管理者タブ =====
+function openAdminTab() {
+  const adminTab = window.open('faq-admin.html', 'faq-admin');
+  // 既に開いているタブなら手前に持ってきてリロードは不要（focusのみ）
+  // 新規タブの場合は自動的に開かれる
+  if (adminTab) adminTab.focus();
+}
 
 init();
 </script>
