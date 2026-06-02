@@ -169,6 +169,23 @@
   .a-text { font-size: 14px; color: var(--text-primary); line-height: 1.8; }
   .a-text p + p { margin-top: 8px; }
   .a-updated { margin-top: 12px; font-size: 12px; color: var(--text-muted); }
+  .a-links { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .a-links-label { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .a-link-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--accent-light);
+    border: 1px solid #BFDBFE;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--accent);
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .a-link-card:hover { background: #DBEAFE; border-color: #93C5FD; }
+  .a-link-card svg { flex-shrink: 0; width: 15px; height: 15px; }
+  .a-link-card span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* ローディング */
   .loading {
@@ -429,7 +446,8 @@ async function loadFaqs() {
         category: r[1] || '',
         q: r[2] || '',
         a: r[3] || '',
-        updated: r[5] || ''
+        updated: r[5] || '',
+        url: r[6] || ''  // G列：関連URL（複数の場合は改行区切り）
       }))
       .filter(f => f.q && f.a);
 
@@ -514,6 +532,20 @@ function renderFAQ() {
 function renderItem(f) {
   const isOpen = openId === f.id;
   const aLines = f.a.split('\n').filter(Boolean).map(l => `<p>${l}</p>`).join('');
+  // 関連URLカード（改行区切りで複数対応）
+  const urlCards = f.url
+    ? f.url.split('\n').filter(Boolean).map(u => {
+        const trimmed = u.trim();
+        // 表示名とURLを「|」で区切る形式に対応（例：「詳細はこちら|https://...」）
+        const parts = trimmed.split('|');
+        const label = parts.length > 1 ? parts[0].trim() : trimmed;
+        const href  = parts.length > 1 ? parts[1].trim() : trimmed;
+        return `<a class="a-link-card" href="${href}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>${label}</span>
+        </a>`;
+      }).join('')
+    : '';
   return `
     <div class="faq-item" id="item-${f.id}">
       <button class="faq-question${isOpen ? ' open' : ''}" onclick="toggleItem(${f.id})">
@@ -528,6 +560,7 @@ function renderItem(f) {
           回答
         </div>
         <div class="a-text">${aLines}</div>
+        ${urlCards ? `<div class="a-links"><div class="a-links-label">関連リンク</div>${urlCards}</div>` : ''}
         ${f.updated ? `<div class="a-updated">最終更新：${f.updated}</div>` : ''}
       </div>
     </div>
