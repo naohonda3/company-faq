@@ -870,6 +870,10 @@ async function bulkToggleStatus(newStatus) {
   renderCatFilterRow();
   renderFaqTable(faqRows);
   updateStats();
+
+  const cbAll = document.getElementById('cb-all');
+  if (cbAll) { cbAll.checked = false; cbAll.indeterminate = false; }
+  updateBulkBar();
 }
 
 async function bulkDelete() {
@@ -895,6 +899,11 @@ async function bulkDelete() {
   renderCatFilterRow();
   renderFaqTable(faqRows);
   updateStats();
+
+  // === 【追加】ヘッダーのチェックボックスと一括操作バーをリセット ===
+  const cbAll = document.getElementById('cb-all');
+  if (cbAll) { cbAll.checked = false; cbAll.indeterminate = false; }
+  updateBulkBar();
 }
 
 // ===== カテゴリ類似チェック =====
