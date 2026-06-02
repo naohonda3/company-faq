@@ -655,11 +655,16 @@ function showToast(msg) {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 // ===== 管理者タブ =====
+let adminTabRef = null;
+
 function openAdminTab() {
-  const adminTab = window.open('faq-admin.html', 'faq-admin');
-  // 既に開いているタブなら手前に持ってきてリロードは不要（focusのみ）
-  // 新規タブの場合は自動的に開かれる
-  if (adminTab) adminTab.focus();
+  // 既に開いているタブが生きているか確認
+  if (adminTabRef && !adminTabRef.closed) {
+    adminTabRef.focus();
+  } else {
+    // 新しいタブで開く
+    adminTabRef = window.open('faq-admin.html', '_blank');
+  }
 }
 
 init();
