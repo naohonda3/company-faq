@@ -373,6 +373,10 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
       <div class="form-group"><label class="form-label">回答（A） <span class="req">*</span></label><textarea class="form-textarea" id="faq-a"></textarea></div>
       <div class="form-group"><label class="form-label">ステータス</label>
         <select class="form-select" id="faq-status"><option value="published">公開</option><option value="draft">下書き</option></select></div>
+      <div class="form-group">
+        <label class="form-label">関連URL <span style="font-weight:400;color:var(--text-muted)">（任意・複数の場合は改行で区切る）</span></label>
+        <textarea class="form-textarea" id="faq-url" rows="3" style="min-height:72px" placeholder="例：https://notion.so/xxx&#10;表示名を変えたい場合：マニュアルはこちら|https://notion.so/xxx"></textarea>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('faq-modal-overlay')">キャンセル</button>
@@ -398,6 +402,10 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
       </div>
       <div class="form-group"><label class="form-label">質問（Q） <span class="req">*</span></label><input class="form-input" type="text" id="approve-q"></div>
       <div class="form-group"><label class="form-label">回答（A） <span class="req">*</span></label><textarea class="form-textarea" id="approve-a" placeholder="回答を入力してください"></textarea></div>
+      <div class="form-group">
+        <label class="form-label">関連URL <span style="font-weight:400;color:var(--text-muted)">（任意・複数の場合は改行で区切る）</span></label>
+        <textarea class="form-textarea" id="approve-url" rows="3" style="min-height:72px" placeholder="例：https://notion.so/xxx&#10;表示名を変えたい場合：マニュアルはこちら|https://notion.so/xxx"></textarea>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('approve-modal-overlay')">キャンセル</button>
@@ -682,7 +690,7 @@ async function loadFaqs() {
     faqRows = rows.slice(1).map((r,i) => ({
       rowNum: i+2, id: r[0]||String(i),
       category: r[1]||'', q: r[2]||'', a: r[3]||'',
-      status: r[4]||'published', updated: r[5]||''
+      status: r[4]||'published', updated: r[5]||'', url: r[6]||''
     })).filter(r => r.q);
     renderCatFilterRow();
     updateCatDatalist();
@@ -900,7 +908,6 @@ async function bulkDelete() {
   renderFaqTable(faqRows);
   updateStats();
 
-  // === 【追加】ヘッダーのチェックボックスと一括操作バーをリセット ===
   const cbAll = document.getElementById('cb-all');
   if (cbAll) { cbAll.checked = false; cbAll.indeterminate = false; }
   updateBulkBar();
@@ -950,9 +957,10 @@ function openFaqModal(id) {
     document.getElementById('faq-q').value = f.q;
     document.getElementById('faq-a').value = f.a;
     document.getElementById('faq-status').value = f.status;
+    document.getElementById('faq-url').value = f.url || '';
   } else {
     document.getElementById('faq-modal-title').textContent = 'FAQ追加';
-    ['faq-cat','faq-q','faq-a'].forEach(id=>document.getElementById(id).value='');
+    ['faq-cat','faq-q','faq-a','faq-url'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('faq-status').value = 'published';
   }
   document.getElementById('faq-modal-overlay').classList.add('show');
@@ -963,6 +971,7 @@ async function saveFaq() {
   const q      = document.getElementById('faq-q').value.trim();
   const a      = document.getElementById('faq-a').value.trim();
   const status = document.getElementById('faq-status').value;
+  const url    = document.getElementById('faq-url').value.trim();
   if (!cat||!q||!a) { showToast('カテゴリ・質問・回答はすべて必須です'); return; }
   const btn = document.getElementById('faq-save-btn');
   btn.innerHTML = '<span class="spinner"></span> 保存中…'; btn.disabled = true;
@@ -971,14 +980,14 @@ async function saveFaq() {
   try {
     if (editId) {
       const f = faqRows.find(x=>x.id===editId);
-      await sheetsUpdate(`faqs!A${f.rowNum}:F${f.rowNum}`, [f.id, cat, q, a, status, today]);
+      await sheetsUpdate(`faqs!A${f.rowNum}:G${f.rowNum}`, [f.id, cat, q, a, status, today, url]);
       const idx = faqRows.findIndex(x=>x.id===editId);
-      faqRows[idx] = {...f, category:cat, q, a, status, updated:today};
+      faqRows[idx] = {...f, category:cat, q, a, status, updated:today, url};
       showToast('FAQを更新しました');
     } else {
       const newId = String(Date.now());
-      await sheetsAppend('faqs', [newId, cat, q, a, status, today]);
-      faqRows.push({ rowNum: faqRows.length+2, id:newId, category:cat, q, a, status, updated:today });
+      await sheetsAppend('faqs', [newId, cat, q, a, status, today, url]);
+      faqRows.push({ rowNum: faqRows.length+2, id:newId, category:cat, q, a, status, updated:today, url });
       showToast('FAQを追加しました');
     }
     closeModal('faq-modal-overlay');
@@ -1016,6 +1025,7 @@ function openApproveModal(subId) {
   document.getElementById('approve-q').value = s.q;
   document.getElementById('approve-a').value = '';
   document.getElementById('approve-cat').value = '';
+  document.getElementById('approve-url').value = '';
   document.getElementById('approve-modal-overlay').classList.add('show');
 }
 
@@ -1024,6 +1034,7 @@ async function approveSubmission() {
   const cat   = document.getElementById('approve-cat').value;
   const q     = document.getElementById('approve-q').value.trim();
   const a     = document.getElementById('approve-a').value.trim();
+  const url   = document.getElementById('approve-url').value.trim();
   if (!cat||!q||!a) { showToast('カテゴリ・質問・回答はすべて必須です'); return; }
   const btn = document.getElementById('approve-btn');
   btn.innerHTML = '<span class="spinner"></span> 処理中…'; btn.disabled = true;
@@ -1031,13 +1042,13 @@ async function approveSubmission() {
   const newId = String(Date.now());
   try {
     // FAQに追加
-    await sheetsAppend('faqs', [newId, cat, q, a, 'published', today]);
+    await sheetsAppend('faqs', [newId, cat, q, a, 'published', today, url]);
     // submissionsのstatusをapprovedに更新
     const s = subRows.find(x=>x.id===subId);
     if (s.rowNum > 0) {
       await sheetsUpdate(`submissions!E${s.rowNum}`, ['approved']);
     }
-    faqRows.push({ rowNum: faqRows.length+2, id:newId, category:cat, q, a, status:'published', updated:today });
+    faqRows.push({ rowNum: faqRows.length+2, id:newId, category:cat, q, a, status:'published', updated:today, url });
     subRows = subRows.filter(x=>x.id!==subId);
     closeModal('approve-modal-overlay');
     showToast('FAQに追加しました');
