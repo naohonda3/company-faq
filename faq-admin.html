@@ -784,8 +784,11 @@ function renderFaqTable(data) {
   document.getElementById('faq-count-label').textContent =
     currentFaqCatFilter === 'すべて' ? `全 ${filtered.length} 件` : `${currentFaqCatFilter}：${filtered.length} 件`;
   const tbody = document.getElementById('faq-table-body');
-  // チェック状態リセット
-  updateBulkBar();
+  // テーブル再描画前にヘッダーチェックボックスとバーを強制リセット
+  const cbAll = document.getElementById('cb-all');
+  if (cbAll) { cbAll.checked = false; cbAll.indeterminate = false; }
+  const bar = document.getElementById('bulk-bar');
+  if (bar) bar.classList.remove('show');
   if (!filtered.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="6">FAQがありません</td></tr>'; return; }
   tbody.innerHTML = filtered.map(f=>`<tr data-id="${f.id}">
     <td><input type="checkbox" class="cb-row" value="${f.id}" onchange="onRowCheck()"></td>
