@@ -178,11 +178,36 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
 .bulk-bar-label { font-size: 13px; color: var(--accent); font-weight: 600; flex: 1; }
 .cb-all { cursor: pointer; width: 15px; height: 15px; accent-color: var(--accent); }
 .cb-row { cursor: pointer; width: 15px; height: 15px; accent-color: var(--accent); }
-.cat-filter-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.cat-filter-row { 
+  display: flex; 
+  gap: 8px; 
+  flex-wrap: wrap; 
+  padding: 14px 18px; 
+  border-bottom: 1px solid var(--border); 
+  align-items: center; /* 縦方向の中央揃え */
+  justify-content: flex-start; 
+}
 .cat-filter-btn { padding: 5px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-secondary); font-family: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all var(--tr); }
 .cat-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
 .cat-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-.draft-filter-btn { padding: 5px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-secondary); font-family: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all var(--tr); margin-left: auto; display: flex; align-items: center; gap: 5px; }
+.draft-filter-btn { 
+  padding: 5px 12px; 
+  border-radius: 16px; 
+  border: 1.5px solid var(--border); 
+  background: var(--surface); 
+  color: var(--text-secondary); 
+  font-family: inherit; 
+  font-size: 12.5px; 
+  font-weight: 500; 
+  cursor: pointer; 
+  transition: all var(--tr); 
+  /* margin-left: auto; を削除、または以下のように右端へ寄せる構造を維持 */
+  margin-left: auto; 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 5px; 
+  flex-shrink: 0; /* 画面幅が狭まってもボタンが潰れないように固定 */
+}
 .draft-filter-btn:hover { border-color: var(--warn); color: var(--warn); }
 .draft-filter-btn.active { background: var(--warn-light); border-color: var(--warn); color: var(--warn); }
 .cat-warn { background: var(--warn-light); border: 1px solid #FCD34D; border-radius: 7px; padding: 10px 14px; font-size: 13px; color: var(--warn); margin-bottom: 12px; display: none; }
@@ -813,9 +838,19 @@ function renderFaqTable(data) {
     : data.filter(f => f.category === currentFaqCatFilter);
   // 下書きフィルター適用
   if (showDraftOnly) filtered = filtered.filter(f => f.status === 'draft');
-  const labelCat = currentFaqCatFilter !== 'すべて' ? `${currentFaqCatFilter}：` : '';
-  const labelDraft = showDraftOnly ? '（下書きのみ）' : '';
-  document.getElementById('faq-count-label').textContent = `${labelCat}全 ${filtered.length} 件${labelDraft}`;
+let countText = '';
+  if (currentFaqCatFilter !== 'すべて') {
+    // カテゴリが選択されている時：「カテゴリ名：X件」
+   countText = `${currentFaqCatFilter}：${filtered.length}件`;
+  } else {
+    // すべての時：「全 X 件」
+   countText = `全 ${filtered.length} 件`;
+  }
+  // 下書きモードがONなら末尾に付与
+  if (showDraftOnly) {
+    countText += '（下書きのみ）';
+  }
+  document.getElementById('faq-count-label').textContent = countText;
   const tbody = document.getElementById('faq-table-body');
   // テーブル再描画前にヘッダーチェックボックスとバーを強制リセット
   const cbAll = document.getElementById('cb-all');
