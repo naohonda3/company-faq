@@ -216,6 +216,16 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
 .cat-new-notice.show { display: block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+/* 同義語管理 */
+.syn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.syn-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.syn-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.syn-rep { font-size: 13.5px; font-weight: 700; color: var(--text-primary); }
+.syn-words { display: flex; flex-wrap: wrap; gap: 5px; }
+.syn-word { background: var(--accent-light); color: var(--accent); border-radius: 5px; padding: 2px 8px; font-size: 12px; font-weight: 500; }
+.syn-note { font-size: 12px; color: var(--text-muted); background: var(--surface2); border-radius: 7px; padding: 10px 14px; margin-bottom: 20px; line-height: 1.7; }
+.syn-note strong { color: var(--warn); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -269,6 +279,10 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
         閲覧画面を開く
       </a>
       <div class="nav-section-label" style="margin-top:8px">設定</div>
+      <button class="nav-item" onclick="showSection('synonyms',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/></svg>
+        同義語管理
+      </button>
       <button class="nav-item" onclick="showSection('users',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         管理者設定
@@ -364,6 +378,25 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
       <div class="content-area">
         <div class="error-banner" id="sub-error"></div>
         <div class="submission-list" id="submission-list"></div>
+      </div>
+    </div>
+
+    <!-- 同義語管理 -->
+    <div id="section-synonyms" class="section">
+      <div class="page-header">
+        <h1>同義語管理</h1>
+        <button class="btn btn-primary" onclick="openSynModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          グループ追加
+        </button>
+      </div>
+      <div class="content-area">
+        <div class="syn-note">
+          <strong>⚠ 変更後の反映について：</strong>同義語を追加・編集・削除しても、<strong>閲覧画面（index.html）は自動更新されません。</strong><br>
+          変更を反映するには、閲覧画面を開き <strong>Ctrl + F5（Windowsの場合）または Cmd + Shift + R（Macの場合）</strong> でキャッシュを無視して再読み込みしてください。
+        </div>
+        <div class="error-banner" id="syn-error"></div>
+        <div class="syn-grid" id="syn-grid"></div>
       </div>
     </div>
 
@@ -467,6 +500,33 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
   </div>
 </div>
 
+<!-- Synonym Modal -->
+<div class="overlay" id="syn-modal-overlay" onclick="handleOverlay(event,'syn-modal-overlay')">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h2 id="syn-modal-title">同義語グループ追加</h2>
+      <button class="modal-close" onclick="closeModal('syn-modal-overlay')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="syn-edit-row">
+      <div class="form-group">
+        <label class="form-label">代表語 <span class="req">*</span></label>
+        <input class="form-input" type="text" id="syn-rep" placeholder="例：有給">
+        <div style="font-size:12px;color:var(--text-muted);margin-top:5px">検索結果の表示などに使われる基準となる言葉です</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">同義語 <span class="req">*</span></label>
+        <textarea class="form-textarea" id="syn-words" style="min-height:90px" placeholder="有休&#10;年休&#10;（1行に1語ずつ入力してください）"></textarea>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:5px">代表語と同じ意味として扱う言葉を1行に1語ずつ入力してください</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('syn-modal-overlay')">キャンセル</button>
+      <button class="btn btn-primary" id="syn-save-btn" onclick="saveSynonym()">保存する</button>
+    </div>
+  </div>
+</div>
+
 <!-- Confirm -->
 <div class="confirm-overlay" id="confirm-overlay">
   <div class="confirm-box">
@@ -499,6 +559,7 @@ let currentUser  = null;
 let faqRows      = [];
 let subRows      = [];
 let userRows     = [];
+let synonymRows  = [];
 let confirmCallback = null;
 
 // ===== Google Identity Services 初期化 =====
@@ -713,7 +774,7 @@ async function sheetsDeleteRow(sheetName, rowNum) {
 
 // ===== データ読み込み =====
 async function loadAll() {
-  await Promise.all([loadFaqs(), loadSubmissions(), loadUsers()]);
+  await Promise.all([loadFaqs(), loadSubmissions(), loadUsers(), loadSynonyms()]);
   updateStats();
 }
 
@@ -759,6 +820,93 @@ async function loadUsers() {
     renderUsers();
   } catch(e) {
     userRows = []; renderUsers();
+  }
+}
+
+// ===== 同義語 =====
+async function loadSynonyms() {
+  try {
+    const rows = await sheetsGet('synonyms');
+    synonymRows = rows.slice(1).map((r, i) => ({
+      rowNum: i + 2,
+      id: r[0] || String(i),
+      rep: r[1] || '',
+      words: r[2] || ''
+    })).filter(r => r.rep);
+    renderSynonyms();
+    showBanner('syn-error', '');
+  } catch(e) {
+    // synonymsシートが存在しない場合は空として扱う
+    synonymRows = [];
+    renderSynonyms();
+  }
+}
+
+function renderSynonyms() {
+  const grid = document.getElementById('syn-grid');
+  if (!grid) return;
+  if (!synonymRows.length) {
+    grid.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:24px 0">同義語グループがまだありません。「グループ追加」から登録してください。</div>';
+    return;
+  }
+  grid.innerHTML = synonymRows.map(s => {
+    const wordList = s.words.split('\n').filter(Boolean);
+    return `<div class="syn-card">
+      <div class="syn-card-head">
+        <span class="syn-rep">📌 ${s.rep}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-ghost" onclick="openSynModal('${s.id}')">編集</button>
+          <button class="btn btn-sm btn-danger" onclick="confirmDelete('synonym','${s.id}','このグループを削除しますか？')">削除</button>
+        </div>
+      </div>
+      <div class="syn-words">
+        ${wordList.map(w => `<span class="syn-word">${w}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openSynModal(id) {
+  document.getElementById('syn-edit-row').value = id || '';
+  if (id) {
+    const s = synonymRows.find(x => x.id === id);
+    document.getElementById('syn-modal-title').textContent = '同義語グループ編集';
+    document.getElementById('syn-rep').value = s.rep;
+    document.getElementById('syn-words').value = s.words;
+  } else {
+    document.getElementById('syn-modal-title').textContent = '同義語グループ追加';
+    document.getElementById('syn-rep').value = '';
+    document.getElementById('syn-words').value = '';
+  }
+  document.getElementById('syn-modal-overlay').classList.add('show');
+}
+
+async function saveSynonym() {
+  const rep   = document.getElementById('syn-rep').value.trim();
+  const words = document.getElementById('syn-words').value.trim();
+  if (!rep || !words) { showToast('代表語と同義語は必須です'); return; }
+  const btn = document.getElementById('syn-save-btn');
+  btn.innerHTML = '<span class="spinner"></span> 保存中…'; btn.disabled = true;
+  const editId = document.getElementById('syn-edit-row').value;
+  try {
+    if (editId) {
+      const s = synonymRows.find(x => x.id === editId);
+      await sheetsUpdate(`synonyms!A${s.rowNum}:C${s.rowNum}`, [s.id, rep, words]);
+      const idx = synonymRows.findIndex(x => x.id === editId);
+      synonymRows[idx] = { ...s, rep, words };
+      showToast('同義語グループを更新しました');
+    } else {
+      const newId = String(Date.now());
+      await sheetsAppend('synonyms', [newId, rep, words]);
+      synonymRows.push({ rowNum: synonymRows.length + 2, id: newId, rep, words });
+      showToast('同義語グループを追加しました');
+    }
+    closeModal('syn-modal-overlay');
+    renderSynonyms();
+  } catch(e) {
+    showToast('保存に失敗しました: ' + e.message);
+  } finally {
+    btn.innerHTML = '保存する'; btn.disabled = false;
   }
 }
 
@@ -1181,6 +1329,12 @@ function confirmDelete(type, id, msg) {
         userRows = userRows.filter(x=>x.id!==id);
         renderUsers();
       }
+      if (type === 'synonym') {
+        const s = synonymRows.find(x=>x.id===id);
+        if (s && s.rowNum > 0) await sheetsDeleteRow('synonyms', s.rowNum);
+        synonymRows = synonymRows.filter(x=>x.id!==id);
+        renderSynonyms();
+      }
       updateStats();
       showToast('削除しました');
     } catch(e) {
@@ -1213,7 +1367,7 @@ function showToast(msg) {
 }
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') {
-    ['faq-modal-overlay','approve-modal-overlay','user-modal-overlay'].forEach(id=>closeModal(id));
+    ['faq-modal-overlay','approve-modal-overlay','user-modal-overlay','syn-modal-overlay'].forEach(id=>closeModal(id));
     cancelConfirm();
   }
 });
