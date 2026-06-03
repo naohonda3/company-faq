@@ -417,13 +417,48 @@ const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/valu
 
 // ===== 状態 =====
 let allFaqs = [];
+let synonymGroups = []; // [{ rep:'有給', words:['有休','年休'] }, ...]
 let currentCategory = 'すべて';
 let currentQuery = '';
 let openId = null;
 
 // ===== 初期化 =====
 async function init() {
-  await loadFaqs();
+  await Promise.all([loadFaqs(), loadSynonyms()]);
+}
+
+// ===== 同義語シートの読み込み =====
+async function loadSynonyms() {
+  try {
+    const url = `${BASE_URL}/synonyms?key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) return; // シートがなければ無視
+    const data = await res.json();
+    const rows = (data.values || []).slice(1);
+    synonymGroups = rows
+      .filter(r => r[1] && r[2])
+      .map(r => ({
+        rep: r[1].trim(),
+        words: r[2].split('\n').map(w => w.trim()).filter(Boolean)
+      }));
+  } catch(e) {
+    // 同義語が取れなくても検索は普通に動く
+    synonymGroups = [];
+  }
+}
+
+// ===== 同義語展開：入力ワードに同義語を加えたリストを返す =====
+function expandQuery(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const terms = new Set([q]);
+  for (const group of synonymGroups) {
+    const all = [group.rep, ...group.words].map(w => w.toLowerCase());
+    if (all.includes(q)) {
+      all.forEach(w => terms.add(w));
+    }
+  }
+  return [...terms];
 }
 
 // ===== Google Sheetsからデータ取得 =====
@@ -499,10 +534,17 @@ function handleSearch(val) {
 }
 
 function getFiltered() {
+  const terms = expandQuery(currentQuery); // 同義語を含む検索ワード一覧
   return allFaqs.filter(f => {
     const matchCat = currentCategory === 'すべて' || f.category === currentCategory;
-    const q = currentQuery.toLowerCase();
-    const matchQ = !q || f.q.toLowerCase().includes(q) || f.a.toLowerCase().includes(q) || f.category.toLowerCase().includes(q);
+    // 検索ワードがない場合は全件
+    if (!terms.length) return matchCat;
+    // いずれかのワードにヒットすれば表示
+    const matchQ = terms.some(t =>
+      f.q.toLowerCase().includes(t) ||
+      f.a.toLowerCase().includes(t) ||
+      f.category.toLowerCase().includes(t)
+    );
     return matchCat && matchQ;
   });
 }
