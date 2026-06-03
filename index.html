@@ -655,15 +655,13 @@ function showToast(msg) {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 // ===== 管理者タブ =====
-let adminTabRef = null;
-
 function openAdminTab() {
-  // 既に開いているタブが生きているか確認
-  if (adminTabRef && !adminTabRef.closed) {
-    adminTabRef.focus();
-  } else {
-    // 新しいタブで開く
-    adminTabRef = window.open('faq-admin.html', '_blank');
+  // 第2引数を一意のウィンドウ名にすることで、同一ブラウザ内で1つのタブしか開かなくなります
+  const adminTab = window.open('faq-admin.html', 'faq-admin-target');
+  
+  // すでに開いている場合に、念のため前面に持ってくる処理（ブラウザによって挙動は異なります）
+  if (adminTab) {
+    adminTab.focus();
   }
 }
 
