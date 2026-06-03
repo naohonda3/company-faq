@@ -1217,6 +1217,15 @@ document.addEventListener('keydown', e => {
     cancelConfirm();
   }
 });
+
+// 他の画面から window.open でこのタブが呼び出された（フォーカスされた）瞬間に発火
+window.addEventListener('focus', () => {
+  console.log('タブがアクティブになったため、データを再読み込みします。');
+  // ここに、スプレッドシートからデータを再取得する既存の関数（例: loadFaqs() など）を記述
+  if (typeof loadFaqs === 'function') {
+    loadFaqs(); 
+  }
+});
 </script>
 </body>
 </html>
