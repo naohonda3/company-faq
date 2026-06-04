@@ -170,17 +170,10 @@
   .a-text p + p { margin-top: 8px; }
   .a-updated { margin-top: 12px; font-size: 12px; color: var(--text-muted); }
   .a-links { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
-  .a-links-label { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
   .a-link-card {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    background: var(--accent-light);
-    border: 1px solid #BFDBFE;
-    border-radius: 8px;
-    text-decoration: none;
-    color: var(--accent);
-    font-size: 13.5px;
-    font-weight: 500;
+    display: flex; align-items: center; gap: 10px; max-width: 420px;
+    padding: 10px 14px; background: var(--accent-light); border: 1px solid #BFDBFE; border-radius: 8px;
+    text-decoration: none; color: var(--accent); font-size: 13.5px; font-weight: 500;
     transition: background var(--transition), border-color var(--transition);
   }
   .a-link-card:hover { background: #DBEAFE; border-color: #93C5FD; }
@@ -189,67 +182,78 @@
 
   /* ローディング */
   .loading {
-    text-align: center; padding: 60px 20px;
-    color: var(--text-muted); font-size: 14px;
+    text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 14px;
     display: flex; flex-direction: column; align-items: center; gap: 14px;
   }
   .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
     animation: spin 0.7s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* エラー */
   .error-state {
-    background: #FEF2F2; border: 1px solid #FECACA;
-    border-radius: var(--radius); padding: 16px 20px;
-    font-size: 14px; color: #DC2626; display: none;
+    background: #FEF2F2; border: 1px solid #FEE2E2; color: #DC2626;
+    padding: 14px 18px; border-radius: 8px; font-size: 14px; margin-bottom: 20px;
+    display: none; align-items: center; gap: 10px;
   }
-  .error-state.show { display: block; }
+  .error-state.show { display: flex; }
 
-  .empty-state { text-align: center; padding: 60px 20px; display: none; }
-  .empty-state.show { display: block; }
+  /* 該当なし */
+  .empty-state {
+    text-align: center; padding: 50px 20px; color: var(--text-secondary);
+    display: none; flex-direction: column; align-items: center;
+  }
+  .empty-state.show { display: flex; }
   .empty-icon {
-    width: 56px; height: 56px; background: var(--surface2); border-radius: 16px;
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+    width: 48px; height: 48px; color: var(--text-muted); background: var(--surface2);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
   }
-  .empty-icon svg { width: 28px; height: 28px; color: var(--text-muted); }
-  .empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-  .empty-state p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+  .empty-state h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+  .empty-state p { font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px; }
   .btn-ask-empty {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--accent); color: #fff; border: none;
-    border-radius: 8px; padding: 10px 20px;
-    font-size: 14px; font-weight: 500; font-family: inherit;
-    cursor: pointer; transition: background var(--transition);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 16px; font-size: 13.5px; font-weight: 500; color: var(--text-secondary);
+    cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit;
+    transition: all var(--transition);
   }
-  .btn-ask-empty:hover { background: var(--accent-hover); }
+  .btn-ask-empty:hover { border-color: var(--text-secondary); color: var(--text-primary); background: var(--bg); }
 
+  /* モーダル */
   .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
-    z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(26,25,23,0.45); backdrop-filter: blur(2px);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+    padding: 20px; opacity: 0; transition: opacity var(--transition);
   }
-  .modal-overlay.show { display: flex; }
+  .modal-overlay.show { display: flex; opacity: 1; }
   .modal {
-    background: var(--surface); border-radius: 14px; padding: 28px;
-    width: 100%; max-width: 480px; box-shadow: var(--shadow-md);
+    background: var(--surface); width: 100%; max-width: 460px;
+    border-radius: var(--radius); box-shadow: var(--shadow-md);
+    padding: 24px; position: relative; transform: translateY(15px);
+    transition: transform var(--transition);
   }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .modal h2 { font-size: 17px; font-weight: 700; }
+  .modal-overlay.show .modal { transform: translateY(0); }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
   .modal-close {
-    background: none; border: none; cursor: pointer; color: var(--text-muted);
-    padding: 4px; border-radius: 6px; display: flex; transition: color var(--transition);
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    padding: 4px; display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; transition: all var(--transition);
   }
-  .modal-close:hover { color: var(--text-primary); }
-  .modal-close svg { width: 20px; height: 20px; }
-  .modal-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+  .modal-close:hover { background: var(--bg); color: var(--text-secondary); }
+  .modal-close svg { width: 18px; height: 18px; }
+  
   .form-group { margin-bottom: 16px; }
-  .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-  .form-label span { color: var(--text-muted); font-weight: 400; }
-  .form-input, .form-textarea {
+  .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+  .form-input {
+    width: 100%; padding: 10px 12px; font-family: inherit; font-size: 14px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text-primary); outline: none;
+    transition: border-color var(--transition);
+  }
+  .form-textarea {
     width: 100%; padding: 10px 12px; font-family: inherit; font-size: 14px;
     border: 1.5px solid var(--border); border-radius: 8px;
     background: var(--bg); color: var(--text-primary); outline: none;
@@ -257,202 +261,172 @@
   }
   .form-input:focus, .form-textarea:focus { border-color: var(--accent); background: var(--surface); }
   .form-textarea { min-height: 100px; line-height: 1.6; }
+  
   .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
   .btn-cancel {
-    padding: 9px 16px; background: none; border: 1px solid var(--border);
-    border-radius: 8px; font-family: inherit; font-size: 13.5px;
-    cursor: pointer; color: var(--text-secondary); transition: all var(--transition);
+    padding: 9px 16px; background: none; border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 13.5px; cursor: pointer; color: var(--text-secondary);
+    transition: all var(--transition);
   }
   .btn-cancel:hover { border-color: var(--text-secondary); color: var(--text-primary); }
   .btn-submit {
-    padding: 9px 20px; background: var(--accent); color: #fff; border: none;
-    border-radius: 8px; font-family: inherit; font-size: 13.5px;
-    font-weight: 500; cursor: pointer; transition: background var(--transition);
+    padding: 9px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    font-family: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer;
+    transition: background var(--transition);
   }
   .btn-submit:hover { background: var(--accent-hover); }
   .btn-submit:disabled { background: var(--text-muted); cursor: not-allowed; }
 
+  /* トースト */
   .toast {
-    position: fixed; bottom: 28px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #1A1917; color: #fff; padding: 12px 20px;
-    border-radius: 10px; font-size: 14px; font-weight: 500;
-    opacity: 0; transition: opacity 0.2s, transform 0.2s;
-    pointer-events: none; z-index: 300;
-    display: flex; align-items: center; gap: 8px;
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--text-primary); color: #fff; padding: 11px 20px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 8px;
+    box-shadow: var(--shadow-md); opacity: 0; pointer-events: none;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease; z-index: 2000;
   }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .toast svg { width: 18px; height: 18px; color: #4ade80; }
-
-  @media (max-width: 600px) {
-    .faq-tags { display: none; }
-    .hero h1 { font-size: 19px; }
-    .main { padding: 20px 16px 50px; }
-  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .toast svg { width: 16px; height: 16px; color: #4ADE80; flex-shrink: 0; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="header-inner">
-    <div class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        社内FAQ
       </div>
-      社内FAQ
+      <div class="header-actions">
+        <button class="btn-ask" onclick="openModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          質問を送る
+        </button>
+        <button class="btn-admin" onclick="openAdminTab(); return false;">管理者画面 ↗</button>
+      </div>
     </div>
-    <div class="header-actions">
-      <button class="btn-admin" onclick="openAdminTab()">管理者</button>
-      <button class="btn-ask" onclick="openModal()">
+  </header>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <h1>何かお困りですか？</h1>
+      <p>業務の手続きやシステムの利用方法など、キーワードで検索できます。</p>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search-input" placeholder="キーワードを入力（例：有給、経費、VPN）" oninput="handleSearch()">
+      </div>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="error-state" id="error-state"></div>
+
+    <div class="category-row" id="category-row"></div>
+
+    <div class="result-meta" id="result-meta" style="display:none;">
+      検索結果: <span id="match-count">0</span> 件
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div>データを読み込んでいます…</div>
+    </div>
+
+    <div class="faq-list" id="faq-list"></div>
+
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <h3 id="empty-title">該当するFAQが見つかりませんでした</h3>
+      <p id="empty-desc">別のキーワードで検索するか、質問を送ってください</p>
+      <button class="btn-ask-empty" onclick="openModal()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        質問する
+        質問を送る
       </button>
     </div>
-  </div>
-</header>
+  </main>
 
-<div class="hero">
-  <div class="hero-inner">
-    <h1>よくある質問</h1>
-    <p>知りたいことをキーワードで検索するか、カテゴリから探してください</p>
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" id="search-input" placeholder="例：有給休暇、経費申請、テレワーク…" oninput="handleSearch(this.value)">
-    </div>
-  </div>
-</div>
-
-<main class="main">
-  <div class="category-row" id="category-row"></div>
-  <div class="result-meta" id="result-meta"></div>
-  <div id="error-state" class="error-state"></div>
-  <div id="loading" class="loading">
-    <div class="spinner"></div>
-    データを読み込んでいます…
-  </div>
-  <div class="faq-list" id="faq-list"></div>
-  <div class="empty-state" id="empty-state">
-    <div class="empty-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-    </div>
-    <h3 id="empty-title">該当するFAQが見つかりませんでした</h3>
-    <p id="empty-desc">別のキーワードで検索するか、質問を送ってください</p>
-    <button class="btn-ask-empty" onclick="openModal()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      質問を送る
-    </button>
-  </div>
-</main>
-
-<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
-  <div class="modal">
-    <!-- ステップ1: 確認画面 -->
-    <div id="modal-step1">
-      <div class="modal-header">
-        <h2>質問を送る前に確認してください</h2>
-        <button class="modal-close" onclick="closeModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div style="padding:8px 0 20px">
-        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px">質問を送る前に、FAQを検索してみましたか？<br>すでに同じ質問が掲載されている可能性があります。</p>
-        <div style="background:var(--bg);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px">
-          <p style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text-primary)">確認のチェックリスト</p>
-          <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text-secondary);cursor:pointer;margin-bottom:8px">
-            <input type="checkbox" id="check1" style="margin-top:2px;flex-shrink:0" onchange="updateStep1Btn()">
-            キーワードで検索してみた
-          </label>
-          <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text-secondary);cursor:pointer">
-            <input type="checkbox" id="check2" style="margin-top:2px;flex-shrink:0" onchange="updateStep1Btn()">
-            カテゴリを絞り込んで探してみた
-          </label>
+  <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+    <div class="modal">
+      <div id="modal-step1">
+        <div class="modal-header">
+          <h2>質問を送る前に確認してください</h2>
+          <button class="modal-close" onclick="closeModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="padding:8px 0 20px">
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px">
+            質問を送る前に、FAQを検索してみましたか？<br>すでに同じ質問が掲載されている可能性があります。
+          </p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn-submit" style="width:100%;padding:11px" onclick="focusSearch()">もう一度検索してみる</button>
+            <button class="btn-cancel" style="width:100%;padding:11px" onclick="goToStep2()">解決しないので質問を送る</button>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeModal()">戻る</button>
-        <button class="btn-submit" id="step1-next-btn" onclick="goToStep2()" disabled style="opacity:0.5;cursor:not-allowed">見つからなかった→質問を送る</button>
-      </div>
-    </div>
-    <!-- ステップ2: 入力フォーム -->
-    <div id="modal-step2" style="display:none">
-      <div class="modal-header">
-        <h2>FAQにない質問を送る</h2>
-        <button class="modal-close" onclick="closeModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <p class="modal-desc">管理者が確認後、FAQに追加します。回答まで数日かかる場合があります。</p>
-      <div class="form-group">
-        <label class="form-label" for="form-name">お名前 <span>（任意）</span></label>
-        <input class="form-input" type="text" id="form-name" placeholder="例：山田 太郎">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="form-question">質問内容 <span>（必須）</span></label>
-        <textarea class="form-textarea" id="form-question" placeholder="知りたいことを具体的に書いてください"></textarea>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="backToStep1()">戻る</button>
-        <button class="btn-submit" id="submit-btn" onclick="submitQuestion()">送信する</button>
+
+      <div id="modal-step2" style="display:none;">
+        <div class="modal-header">
+          <h2>管理者へ質問を送信</h2>
+          <button class="modal-close" onclick="closeModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="padding-top:14px;">
+          <div class="form-group">
+            <label for="form-question">質問内容 <span style="color:#DC2626">*</span></label>
+            <textarea id="form-question" class="form-textarea" placeholder="知りたい内容を詳しく記入してください（例：〇〇の手続き方法を教えてください）"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="form-name">お名前（任意）</label>
+            <input type="text" id="form-name" class="form-input" placeholder="匿名で送信する場合は空欄で可">
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+            <button class="btn-submit" id="submit-btn" onclick="submitForm()">送信する</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="toast" id="toast">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-  <span id="toast-msg"></span>
-</div>
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="toast-msg">質問を送信しました。</span>
+  </div>
 
 <script>
-// ===== 設定 =====
-const API_KEY = 'AIzaSyAl6yDbHBP_-P6TXNwNW3f_rE45xjpZSrM';
-const SHEET_ID = '14TvzrqwT-Q-Qk1eBG7QnPvY-t0Yu0d5SKa79F2izojE';
-const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
+// ===== 設定項目 =====
+const BASE_URL = 'https://sheets.googleapis.com/v4/spreadsheets/1h8wN6KOf98g_Dk1I8f_tZ_029w4O2X8eF6O-A_Z9XJw'; 
+const API_KEY = 'AIzaSyA4...'; // 実際のAPIキーを設定してください
 
-// ===== 状態 =====
 let allFaqs = [];
-let synonymGroups = []; // [{ rep:'有給', words:['有休','年休'] }, ...]
-let currentCategory = 'すべて';
-let currentQuery = '';
+let currentCategory = '全部';
 let openId = null;
 
-// ===== 初期化 =====
-async function init() {
-  await Promise.all([loadFaqs(), loadSynonyms()]);
-}
+// 表記揺れマッピング辞書
+const SYNONYMS = [
+  { rep: '有給', words: ['有給', '有休', '休暇', '休み', 'ゆうきゅう', 'ゆうきゅうきゅうか'] },
+  { rep: '経費', words: ['経費', '精算', '領収書', '交通費', 'お金', 'けいひ', 'せいさん'] },
+  { rep: 'PC', words: ['パソコン', 'pc', '端末', 'mac', 'windows', 'ぱそこん'] },
+  { rep: '勤怠', words: ['勤怠', '打刻', '出勤', '退勤', '遅刻', '欠勤', 'きんたい'] }
+];
 
-// ===== 同義語シートの読み込み =====
-async function loadSynonyms() {
-  try {
-    const url = `${BASE_URL}/synonyms?key=${API_KEY}`;
-    const res = await fetch(url);
-    if (!res.ok) return; // シートがなければ無視
-    const data = await res.json();
-    const rows = (data.values || []).slice(1);
-    synonymGroups = rows
-      .filter(r => r[1] && r[2])
-      .map(r => ({
-        rep: r[1].trim(),
-        words: r[2].split('\n').map(w => w.trim()).filter(Boolean)
-      }));
-  } catch(e) {
-    // 同義語が取れなくても検索は普通に動く
-    synonymGroups = [];
-  }
-}
+// ページ読み込み時に実行
+document.addEventListener('DOMContentLoaded', () => {
+  loadFaqs(); // 👈 正しい関数名に変更しました
+});
 
-// ===== 同義語展開：入力ワードに同義語を加えたリストを返す =====
-function expandQuery(query) {
+// 類義語を含めた検索キーワードの展開
+function expandKeywords(query) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
   const terms = new Set([q]);
-  for (const group of synonymGroups) {
+  for (const group of SYNONYMS) {
     const all = [group.rep, ...group.words].map(w => w.toLowerCase());
     if (all.includes(q)) {
       all.forEach(w => terms.add(w));
@@ -471,9 +445,8 @@ async function loadFaqs() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const rows = data.values || [];
-
+    
     // 1行目はヘッダーなのでスキップ、2行目以降がデータ
-    // 列順: id, category, q, a, status, updated
     allFaqs = rows.slice(1)
       .filter(r => r[4] === 'published') // statusが'published'のみ
       .map((r, i) => ({
@@ -482,7 +455,7 @@ async function loadFaqs() {
         q: r[2] || '',
         a: r[3] || '',
         updated: r[5] || '',
-        url: r[6] || ''  // G列：関連URL（複数の場合は改行区切り）
+        url: r[6] || '' // G列：関連URL
       }))
       .filter(f => f.q && f.a);
 
@@ -497,134 +470,136 @@ async function loadFaqs() {
 }
 
 // ===== 投稿をSheetsに書き込む（GAS経由）=====
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxG_Fcz-dYdwrsPjFhWK6gcEk9_a7V5GFSvyGQYXeI3s-P34UZOxkOspsugqOj5HEzO/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxG_F...'; // 実際のGAS URLを設定してください
 
 async function writeSubmission(name, question) {
   const res = await fetch(GAS_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ question, name: name || '（匿名）' })
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: name || '匿名', question: question })
   });
-  if (!res.ok) throw new Error(`送信エラー: ${res.status}`);
-  const data = await res.json();
-  if (data.status !== 'ok') throw new Error(data.message || '送信に失敗しました');
-  return true;
+  return res;
 }
 
-// ===== カテゴリ =====
+// ===== カテゴリ帯の描画 =====
 function renderCategories() {
-  const cats = ['すべて', ...new Set(allFaqs.map(f => f.category).filter(Boolean))];
-  const row = document.getElementById('category-row');
-  row.innerHTML = cats.map(cat => `
-    <button class="cat-btn${cat === currentCategory ? ' active' : ''}" onclick="selectCategory('${cat}')">${cat}</button>
+  const cats = new Set(['全部']);
+  allFaqs.forEach(f => { if(f.category.trim()) cats.add(f.category.trim()); });
+  
+  const container = document.getElementById('category-row');
+  container.innerHTML = [...cats].map(c => `
+    <button class="cat-btn ${c===currentCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>
   `).join('');
 }
 
-function selectCategory(cat) {
+function setCategory(cat) {
   currentCategory = cat;
-  openId = null;
   renderCategories();
   renderFAQ();
 }
 
-function handleSearch(val) {
-  currentQuery = val.trim();
-  openId = null;
+// ===== FAQリストの描画と検索フィルタリング =====
+function handleSearch() {
   renderFAQ();
-}
-
-function getFiltered() {
-  const terms = expandQuery(currentQuery); // 同義語を含む検索ワード一覧
-  return allFaqs.filter(f => {
-    const matchCat = currentCategory === 'すべて' || f.category === currentCategory;
-    // 検索ワードがない場合は全件
-    if (!terms.length) return matchCat;
-    // いずれかのワードにヒットすれば表示
-    const matchQ = terms.some(t =>
-      f.q.toLowerCase().includes(t) ||
-      f.a.toLowerCase().includes(t) ||
-      f.category.toLowerCase().includes(t)
-    );
-    return matchCat && matchQ;
-  });
 }
 
 function renderFAQ() {
-  const filtered = getFiltered();
-  const list = document.getElementById('faq-list');
-  const empty = document.getElementById('empty-state');
-  const meta = document.getElementById('result-meta');
+  const searchInput = document.getElementById('search-input');
+  const query = searchInput ? searchInput.value.trim() : '';
+  const keywords = expandKeywords(query);
 
-  if (allFaqs.length === 0) return;
+  const filtered = allFaqs.filter(f => {
+    // カテゴリ絞り込み
+    if (currentCategory !== '全部' && f.category !== currentCategory) return false;
+    
+    // キーワード検索絞り込み
+    if (keywords.length > 0) {
+      const match = keywords.some(k => 
+        f.q.toLowerCase().includes(k) || 
+        f.a.toLowerCase().includes(k) || 
+        f.category.toLowerCase().includes(k)
+      );
+      if (!match) return false;
+    }
+    return true;
+  });
+
+  // 件数表示の制御
+  const meta = document.getElementById('result-meta');
+  if (query) {
+    meta.style.display = 'block';
+    document.getElementById('match-count').textContent = filtered.length;
+  } else {
+    meta.style.display = 'none';
+  }
+
+  const container = document.getElementById('faq-list');
+  const empty = document.getElementById('empty-state');
 
   if (filtered.length === 0) {
-    list.innerHTML = '';
+    container.innerHTML = '';
     empty.classList.add('show');
-    meta.innerHTML = '';
-    if (currentQuery) {
-      document.getElementById('empty-title').textContent = `「${currentQuery}」に一致するFAQはありませんでした`;
+    if (query) {
+      document.getElementById('empty-title').textContent = `「${query}」に一致するFAQは見つかりませんでした`;
+      document.getElementById('empty-desc').textContent = 'キーワードを変えてみるか、管理者へ直接質問を送ることができます。';
+    } else {
+      document.getElementById('empty-title').textContent = '該当するFAQがありません';
+      document.getElementById('empty-desc').textContent = 'このカテゴリには現在掲載されているFAQがありません。';
     }
-  } else {
-    empty.classList.remove('show');
-    meta.innerHTML = `${currentCategory !== 'すべて' ? `<span>${currentCategory}</span> · ` : ''}全 <span>${filtered.length}</span> 件`;
-    list.innerHTML = filtered.map(f => renderItem(f)).join('');
+    return;
   }
-}
 
-function renderItem(f) {
-  const isOpen = openId === f.id;
-  const aLines = f.a.split('\n').filter(Boolean).map(l => `<p>${l}</p>`).join('');
-  // 関連URLカード（改行区切りで複数対応）
-  const urlCards = f.url
-    ? f.url.split('\n').filter(Boolean).map(u => {
-        const trimmed = u.trim();
-        // 表示名とURLを「|」で区切る形式に対応（例：「詳細はこちら|https://...」）
-        const parts = trimmed.split('|');
-        const label = parts.length > 1 ? parts[0].trim() : trimmed;
-        const href  = parts.length > 1 ? parts[1].trim() : trimmed;
-        return `<a class="a-link-card" href="${href}" target="_blank" rel="noopener">
+  empty.classList.remove('show');
+  container.innerHTML = filtered.map(f => {
+    const isOpen = openId === f.id;
+    const aLines = f.a.split('\n').filter(Boolean).map(l => `<p>${l}</p>`).join('');
+    
+    // 関連URLカード（改行区切りで複数対応）
+    const urlCards = f.url ? f.url.split('\n').filter(Boolean).map(u => {
+      const trimmed = u.trim();
+      const parts = trimmed.split('|');
+      const label = parts.length > 1 ? parts[0].trim() : trimmed;
+      const href = parts.length > 1 ? parts[1].trim() : trimmed;
+      return `
+        <a class="a-link-card" href="${href}" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           <span>${label}</span>
-        </a>`;
-      }).join('')
-    : '';
-  return `
-    <div class="faq-item" id="item-${f.id}">
-      <button class="faq-question${isOpen ? ' open' : ''}" onclick="toggleItem(${f.id})">
-        <span class="q-badge">Q</span>
-        <span class="q-text">${f.q}</span>
-        <span class="faq-tags"><span class="tag">${f.category}</span></span>
-        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="faq-answer${isOpen ? ' open' : ''}">
-        <div class="a-label">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          回答
+        </a>
+      `;
+    }).join('') : '';
+
+    return `
+      <div class="faq-item">
+        <button class="faq-question ${isOpen?'open':''}" onclick="toggleFaq(${f.id})">
+          <span class="q-badge">Q</span>
+          <span class="q-text">${f.q}</span>
+          <div class="faq-tags">
+            <span class="tag">${f.category}</span>
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer ${isOpen?'open':''}">
+          <div class="a-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            回答
+          </div>
+          <div class="a-text">${aLines}</div>
+          ${urlCards ? `<div class="a-links">${urlCards}</div>` : ''}
+          ${f.updated ? `<div class="a-updated">更新日: ${f.updated}</div>` : ''}
         </div>
-        <div class="a-text">${aLines}</div>
-        ${urlCards ? `<div class="a-links"><div class="a-links-label">関連リンク</div>${urlCards}</div>` : ''}
-        ${f.updated ? `<div class="a-updated">最終更新：${f.updated}</div>` : ''}
       </div>
-    </div>
-  `;
+    `;
+  }).join('');
 }
 
-function toggleItem(id) {
-  openId = openId === id ? null : id;
+function toggleFaq(id) {
+  openId = (openId === id) ? null : id;
   renderFAQ();
-  if (openId) {
-    setTimeout(() => {
-      document.getElementById(`item-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 50);
-  }
 }
 
-// ===== モーダル =====
+// ===== モーダル関連制御 =====
 function openModal() {
-  // チェックボックスをリセットしてステップ1から開始
-  document.getElementById('check1').checked = false;
-  document.getElementById('check2').checked = false;
-  updateStep1Btn();
   document.getElementById('modal-step1').style.display = 'block';
   document.getElementById('modal-step2').style.display = 'none';
   document.getElementById('modal-overlay').classList.add('show');
@@ -635,27 +610,23 @@ function closeModal() {
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
-function updateStep1Btn() {
-  const btn = document.getElementById('step1-next-btn');
-  const checked = document.getElementById('check1').checked && document.getElementById('check2').checked;
-  btn.disabled = !checked;
-  btn.style.opacity = checked ? '1' : '0.5';
-  btn.style.cursor = checked ? 'pointer' : 'not-allowed';
+function focusSearch() {
+  closeModal();
+  const input = document.getElementById('search-input');
+  if (input) { input.focus(); input.select(); }
 }
+  
 function goToStep2() {
   document.getElementById('modal-step1').style.display = 'none';
   document.getElementById('modal-step2').style.display = 'block';
-  setTimeout(() => document.getElementById('form-question').focus(), 100);
-}
-function backToStep1() {
-  document.getElementById('modal-step1').style.display = 'block';
-  document.getElementById('modal-step2').style.display = 'none';
+  const textarea = document.getElementById('form-question');
+  if (textarea) textarea.focus();
 }
 
-async function submitQuestion() {
+async function submitForm() {
   const q = document.getElementById('form-question').value.trim();
   if (!q) {
-    document.getElementById('form-question').style.borderColor = '#EF4444';
+    document.getElementById('form-question').style.borderColor = '#DC2626';
     setTimeout(() => document.getElementById('form-question').style.borderColor = '', 1500);
     return;
   }
@@ -684,8 +655,10 @@ function showLoading(v) {
 }
 function showError(msg) {
   const el = document.getElementById('error-state');
-  el.textContent = msg;
-  el.classList.toggle('show', !!msg);
+  if (el) {
+    el.textContent = msg;
+    el.classList.toggle('show', !!msg);
+  }
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -698,15 +671,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 // ===== 管理者タブ =====
 function openAdminTab() {
-  // 第2引数を一意のウィンドウ名にすることで、同一ブラウザ内で1つのタブしか開かなくなります
-  const adminTab = window.open('faq-admin.html', 'faq-admin-target');
-  
-  // すでに開いている場合に、念のため前面に持ってくる処理（ブラウザによって挙動は異なります）
-  if (adminTab) {
-    adminTab.focus();
-  }
+  window.open('faq-admin.html', 'faq-admin-target');
 }
-init();
 </script>
 </body>
 </html>
