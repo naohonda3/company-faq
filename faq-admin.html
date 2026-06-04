@@ -217,6 +217,14 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
 
+/* バックアップ状況バー */
+.backup-status-bar { border-radius: var(--radius); padding: 11px 16px; font-size: 13px; display: flex; align-items: center; gap: 9px; margin-bottom: 20px; }
+.backup-status-bar.running { background: var(--accent-light); border: 1px solid #BFDBFE; color: var(--accent); }
+.backup-status-bar.done    { background: var(--success-light); border: 1px solid #86EFAC; color: var(--success); }
+.backup-status-bar.skip    { background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); }
+.backup-status-bar.error   { background: var(--danger-light); border: 1px solid #FECACA; color: var(--danger); }
+.backup-spinner { width: 14px; height: 14px; border: 2px solid rgba(37,99,235,0.3); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+
 /* 同義語管理 */
 .syn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
 .syn-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
@@ -323,6 +331,7 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
           <div class="stat-card"><div class="stat-label">カテゴリ数</div><div class="stat-value" id="stat-cats">—</div><div class="stat-sub">カテゴリ</div></div>
           <div class="stat-card"><div class="stat-label">FAQ総数</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub">件</div></div>
         </div>
+        <div class="backup-status-bar" id="backup-status-bar" style="display:none"></div>
         <div class="error-banner" id="dash-error"></div>
         <div class="table-card">
           <div class="table-toolbar"><span class="table-toolbar-title">承認待ちの質問</span></div>
@@ -550,7 +559,7 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
 const CLIENT_ID  = '85046650072-6927udqug7t93p1gnd70j8v4nb45qmbb.apps.googleusercontent.com';
 const API_KEY    = 'AIzaSyAl6yDbHBP_-P6TXNwNW3f_rE45xjpZSrM';
 const SHEET_ID   = '14TvzrqwT-Q-Qk1eBG7QnPvY-t0Yu0d5SKa79F2izojE';
-const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets';
+const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
 const BASE_URL   = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
 
 // ===== 状態 =====
@@ -685,7 +694,10 @@ function enterApp() {
     const firstChar = [...(currentUser.name || '管')][0] || '管';
     avatarEl.textContent = firstChar;
   }
-  loadAll();
+  loadAll().then(() => {
+    // データ読み込み完了後にバックアップチェックを非同期で実行
+    runBackup();
+  });
 }
 
 function logout() {
@@ -770,6 +782,139 @@ async function sheetsDeleteRow(sheetName, rowNum) {
       range: { sheetId, dimension: 'ROWS', startIndex: rowNum - 1, endIndex: rowNum }
     }
   }]);
+}
+
+// ===== バックアップ =====
+// スプレッドシート全体（全シート含む）をコピーして先入れ先出し2世代管理する。
+// 起動時に全シートのハッシュを計算し、前回値と異なるときだけバックアップを実行する。
+
+const BACKUP_HASH_KEY = 'faq_backup_hash'; // sessionStorage キー
+
+// 全シートのデータを1つの文字列にまとめてハッシュ化（簡易比較用）
+async function calcSpreadsheetHash() {
+  const sheets = ['faqs', 'submissions', 'synonyms', 'users'];
+  const parts = await Promise.all(sheets.map(async s => {
+    try {
+      const rows = await sheetsGet(s);
+      return s + ':' + JSON.stringify(rows);
+    } catch(e) {
+      return s + ':error';
+    }
+  }));
+  const raw = parts.join('|');
+  // 簡易ハッシュ（FNV-1a 32bit 相当）
+  let h = 2166136261;
+  for (let i = 0; i < raw.length; i++) {
+    h ^= raw.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h.toString(16);
+}
+
+// バックアップ用コピーを作成する（Drive API）
+// namePrefix: 'FAQ_backup_1' または 'FAQ_backup_2'
+// 同名ファイルが既に存在する場合は先に削除してから作成（上書き相当）
+async function createBackupCopy(namePrefix) {
+  await ensureFreshToken();
+
+  // 同名の既存バックアップを検索して削除
+  const searchRes = await fetch(
+    `https://www.googleapis.com/drive/v3/files?q=name='${namePrefix}' and trashed=false&fields=files(id,name)`,
+    { headers: { 'Authorization': `Bearer ${accessToken}` } }
+  );
+  if (searchRes.ok) {
+    const searchData = await searchRes.json();
+    for (const file of (searchData.files || [])) {
+      await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+    }
+  }
+
+  // 元スプレッドシートのコピーを作成
+  const copyRes = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${SHEET_ID}/copy`,
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: namePrefix })
+    }
+  );
+  if (!copyRes.ok) {
+    const err = await copyRes.json();
+    throw new Error(err.error?.message || copyRes.status);
+  }
+  return await copyRes.json();
+}
+
+// バックアップ実行（先入れ先出し2世代）
+// backup_2 ← 旧 backup_1、backup_1 ← 現在
+async function runBackup() {
+  setBackupBar('running', '<div class="backup-spinner"></div> バックアップを確認中…');
+
+  try {
+    const currentHash = await calcSpreadsheetHash();
+    const prevHash = sessionStorage.getItem(BACKUP_HASH_KEY);
+
+    if (prevHash === currentHash) {
+      setBackupBar('skip', '✓ 変更なし — バックアップはスキップされました');
+      return;
+    }
+
+    setBackupBar('running', '<div class="backup-spinner"></div> バックアップを作成中…（しばらくお待ちください）');
+
+    // backup_1 → backup_2 にリネーム（既存 backup_2 は削除してから）
+    const searchRes = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='FAQ_backup_1' and trashed=false&fields=files(id,name)`,
+      { headers: { 'Authorization': `Bearer ${accessToken}` } }
+    );
+    if (searchRes.ok) {
+      const searchData = await searchRes.json();
+      for (const file of (searchData.files || [])) {
+        // 旧 backup_2 を削除
+        const del2Res = await fetch(
+          `https://www.googleapis.com/drive/v3/files?q=name='FAQ_backup_2' and trashed=false&fields=files(id)`,
+          { headers: { 'Authorization': `Bearer ${accessToken}` } }
+        );
+        if (del2Res.ok) {
+          const del2Data = await del2Res.json();
+          for (const f of (del2Data.files || [])) {
+            await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+          }
+        }
+        // backup_1 → backup_2 にリネーム
+        await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: 'FAQ_backup_2' })
+        });
+      }
+    }
+
+    // 現在の状態を backup_1 としてコピー
+    await createBackupCopy('FAQ_backup_1');
+
+    // 今回のハッシュを保存（次回起動時の比較用）
+    sessionStorage.setItem(BACKUP_HASH_KEY, currentHash);
+
+    const now = new Date().toLocaleString('ja-JP');
+    setBackupBar('done', `✓ バックアップ完了（${now}）— FAQ_backup_1（直近）/ FAQ_backup_2（1つ前）`);
+  } catch(e) {
+    console.error('バックアップエラー:', e);
+    setBackupBar('error', `⚠ バックアップに失敗しました: ${e.message}`);
+  }
+}
+
+function setBackupBar(type, html) {
+  const bar = document.getElementById('backup-status-bar');
+  if (!bar) return;
+  bar.className = `backup-status-bar ${type}`;
+  bar.innerHTML = html;
+  bar.style.display = 'flex';
 }
 
 // ===== データ読み込み =====
