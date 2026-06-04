@@ -401,32 +401,45 @@
 
 <script>
 // ===== 設定項目 =====
-const BASE_URL = 'https://sheets.googleapis.com/v4/spreadsheets/1h8wN6KOf98g_Dk1I8f_tZ_029w4O2X8eF6O-A_Z9XJw'; 
-const API_KEY = 'AIzaSyA4...'; // 実際のAPIキーを設定してください
+const BASE_URL = 'https://sheets.googleapis.com/v4/spreadsheets/14TvzrqwT-Q-Qk1eBG7QnPvY-t0Yu0d5SKa79F2izojE';
+const API_KEY  = 'AIzaSyAl6yDbHBP_-P6TXNwNW3f_rE45xjpZSrM';
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxG_Fcz-dYdwrsPjFhWK6gcEk9_a7V5GFSvyGQYXeI3s-P34UZOxkOspsugqOj5HEzO/exec';
 
-let allFaqs = [];
+// ===== 状態 =====
+let allFaqs      = [];
+let synonymGroups = []; // スプレッドシートから読み込んだ同義語
 let currentCategory = '全部';
 let openId = null;
 
-// 表記揺れマッピング辞書
-const SYNONYMS = [
-  { rep: '有給', words: ['有給', '有休', '休暇', '休み', 'ゆうきゅう', 'ゆうきゅうきゅうか'] },
-  { rep: '経費', words: ['経費', '精算', '領収書', '交通費', 'お金', 'けいひ', 'せいさん'] },
-  { rep: 'PC', words: ['パソコン', 'pc', '端末', 'mac', 'windows', 'ぱそこん'] },
-  { rep: '勤怠', words: ['勤怠', '打刻', '出勤', '退勤', '遅刻', '欠勤', 'きんたい'] }
-];
-
-// ページ読み込み時に実行
+// ===== 初期化 =====
 document.addEventListener('DOMContentLoaded', () => {
-  loadFaqs(); // 👈 正しい関数名に変更しました
+  Promise.all([loadFaqs(), loadSynonyms()]);
 });
 
-// 類義語を含めた検索キーワードの展開
+// ===== 同義語シートの読み込み =====
+async function loadSynonyms() {
+  try {
+    const res = await fetch(`${BASE_URL}/synonyms?key=${API_KEY}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const rows = (data.values || []).slice(1);
+    synonymGroups = rows
+      .filter(r => r[1] && r[2])
+      .map(r => ({
+        rep: r[1].trim(),
+        words: r[2].split('\n').map(w => w.trim()).filter(Boolean)
+      }));
+  } catch(e) {
+    synonymGroups = []; // 取得失敗しても通常検索は動く
+  }
+}
+
+// ===== 同義語展開：入力ワードに同義語を加えたリストを返す =====
 function expandKeywords(query) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
   const terms = new Set([q]);
-  for (const group of SYNONYMS) {
+  for (const group of synonymGroups) {
     const all = [group.rep, ...group.words].map(w => w.toLowerCase());
     if (all.includes(q)) {
       all.forEach(w => terms.add(w));
@@ -435,33 +448,31 @@ function expandKeywords(query) {
   return [...terms];
 }
 
-// ===== Google Sheetsからデータ取得 =====
+// ===== Google SheetsからFAQデータ取得 =====
 async function loadFaqs() {
   showLoading(true);
   showError('');
   try {
-    const url = `${BASE_URL}/faqs?key=${API_KEY}`;
-    const res = await fetch(url);
+    const res = await fetch(`${BASE_URL}/faqs?key=${API_KEY}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const rows = data.values || [];
-    
-    // 1行目はヘッダーなのでスキップ、2行目以降がデータ
+
     allFaqs = rows.slice(1)
-      .filter(r => r[4] === 'published') // statusが'published'のみ
+      .filter(r => r[4] === 'published')
       .map((r, i) => ({
         id: i + 1,
         category: r[1] || '',
         q: r[2] || '',
         a: r[3] || '',
         updated: r[5] || '',
-        url: r[6] || '' // G列：関連URL
+        url: r[6] || ''
       }))
       .filter(f => f.q && f.a);
 
     renderCategories();
     renderFAQ();
-  } catch (e) {
+  } catch(e) {
     showError('データの読み込みに失敗しました。スプレッドシートの共有設定とAPIキーをご確認ください。');
     console.error(e);
   } finally {
@@ -470,23 +481,19 @@ async function loadFaqs() {
 }
 
 // ===== 投稿をSheetsに書き込む（GAS経由）=====
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxG_F...'; // 実際のGAS URLを設定してください
-
 async function writeSubmission(name, question) {
-  const res = await fetch(GAS_URL, {
+  return fetch(GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name || '匿名', question: question })
+    body: JSON.stringify({ name: name || '匿名', question })
   });
-  return res;
 }
 
 // ===== カテゴリ帯の描画 =====
 function renderCategories() {
   const cats = new Set(['全部']);
   allFaqs.forEach(f => { if(f.category.trim()) cats.add(f.category.trim()); });
-  
   const container = document.getElementById('category-row');
   container.innerHTML = [...cats].map(c => `
     <button class="cat-btn ${c===currentCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>
@@ -510,14 +517,11 @@ function renderFAQ() {
   const keywords = expandKeywords(query);
 
   const filtered = allFaqs.filter(f => {
-    // カテゴリ絞り込み
     if (currentCategory !== '全部' && f.category !== currentCategory) return false;
-    
-    // キーワード検索絞り込み
     if (keywords.length > 0) {
-      const match = keywords.some(k => 
-        f.q.toLowerCase().includes(k) || 
-        f.a.toLowerCase().includes(k) || 
+      const match = keywords.some(k =>
+        f.q.toLowerCase().includes(k) ||
+        f.a.toLowerCase().includes(k) ||
         f.category.toLowerCase().includes(k)
       );
       if (!match) return false;
@@ -525,7 +529,6 @@ function renderFAQ() {
     return true;
   });
 
-  // 件数表示の制御
   const meta = document.getElementById('result-meta');
   if (query) {
     meta.style.display = 'block';
@@ -554,19 +557,17 @@ function renderFAQ() {
   container.innerHTML = filtered.map(f => {
     const isOpen = openId === f.id;
     const aLines = f.a.split('\n').filter(Boolean).map(l => `<p>${l}</p>`).join('');
-    
-    // 関連URLカード（改行区切りで複数対応）
+
     const urlCards = f.url ? f.url.split('\n').filter(Boolean).map(u => {
       const trimmed = u.trim();
       const parts = trimmed.split('|');
       const label = parts.length > 1 ? parts[0].trim() : trimmed;
-      const href = parts.length > 1 ? parts[1].trim() : trimmed;
+      const href  = parts.length > 1 ? parts[1].trim() : trimmed;
       return `
         <a class="a-link-card" href="${href}" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           <span>${label}</span>
-        </a>
-      `;
+        </a>`;
     }).join('') : '';
 
     return `
@@ -574,9 +575,7 @@ function renderFAQ() {
         <button class="faq-question ${isOpen?'open':''}" onclick="toggleFaq(${f.id})">
           <span class="q-badge">Q</span>
           <span class="q-text">${f.q}</span>
-          <div class="faq-tags">
-            <span class="tag">${f.category}</span>
-          </div>
+          <div class="faq-tags"><span class="tag">${f.category}</span></div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-answer ${isOpen?'open':''}">
@@ -588,8 +587,7 @@ function renderFAQ() {
           ${urlCards ? `<div class="a-links">${urlCards}</div>` : ''}
           ${f.updated ? `<div class="a-updated">更新日: ${f.updated}</div>` : ''}
         </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
@@ -615,7 +613,6 @@ function focusSearch() {
   const input = document.getElementById('search-input');
   if (input) { input.focus(); input.select(); }
 }
-  
 function goToStep2() {
   document.getElementById('modal-step1').style.display = 'none';
   document.getElementById('modal-step2').style.display = 'block';
@@ -670,8 +667,14 @@ function showToast(msg) {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 // ===== 管理者タブ =====
+let adminTabRef = null;
+
 function openAdminTab() {
-  window.open('faq-admin.html', 'faq-admin-target');
+  if (adminTabRef && !adminTabRef.closed) {
+    adminTabRef.focus();
+  } else {
+    adminTabRef = window.open('faq-admin.html', '_blank');
+  }
 }
 </script>
 </body>
