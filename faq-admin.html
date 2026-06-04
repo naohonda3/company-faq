@@ -225,6 +225,31 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
 .backup-status-bar.error   { background: var(--danger-light); border: 1px solid #FECACA; color: var(--danger); }
 .backup-spinner { width: 14px; height: 14px; border: 2px solid rgba(37,99,235,0.3); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
 
+/* バックアップ・復元セクション */
+.backup-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.backup-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+.backup-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.backup-card-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.backup-card-icon.b1 { background: #EFF4FF; }
+.backup-card-icon.b2 { background: var(--surface2); }
+.backup-card-icon svg { width: 17px; height: 17px; }
+.backup-card-title { font-size: 14px; font-weight: 700; }
+.backup-card-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; min-height: 18px; }
+.backup-card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.backup-warn-box { background: #FFF7ED; border: 1px solid #FED7AA; border-radius: var(--radius); padding: 14px 18px; font-size: 13px; color: #92400E; margin-bottom: 20px; line-height: 1.7; }
+.backup-warn-box strong { font-weight: 700; }
+.restore-confirm-box { background: var(--surface); border-radius: 14px; padding: 28px; width: 100%; max-width: 440px; box-shadow: var(--shadow-md); }
+.restore-confirm-icon { width: 48px; height: 48px; background: #FFF7ED; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.restore-confirm-icon svg { width: 24px; height: 24px; color: var(--warn); }
+.restore-confirm-box h3 { font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 10px; }
+.restore-confirm-box p { font-size: 13px; color: var(--text-secondary); text-align: center; margin-bottom: 8px; line-height: 1.7; }
+.restore-confirm-check { display: flex; align-items: flex-start; gap: 9px; background: var(--bg); border-radius: 8px; padding: 12px 14px; margin: 16px 0; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
+.restore-confirm-check input { margin-top: 2px; flex-shrink: 0; accent-color: var(--warn); }
+.restore-confirm-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn-restore { background: var(--warn); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-family: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: background var(--tr); }
+.btn-restore:hover { background: #B45309; }
+.btn-restore:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* 同義語管理 */
 .syn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
 .syn-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
@@ -287,6 +312,10 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
         閲覧画面を開く
       </a>
       <div class="nav-section-label" style="margin-top:8px">設定</div>
+      <button class="nav-item" onclick="showSection('backup',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        バックアップ・復元
+      </button>
       <button class="nav-item" onclick="showSection('synonyms',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/></svg>
         同義語管理
@@ -387,6 +416,64 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
       <div class="content-area">
         <div class="error-banner" id="sub-error"></div>
         <div class="submission-list" id="submission-list"></div>
+      </div>
+    </div>
+
+    <!-- バックアップ・復元 -->
+    <div id="section-backup" class="section">
+      <div class="page-header">
+        <h1>バックアップ・復元</h1>
+        <button class="btn btn-ghost btn-sm" onclick="refreshBackupSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-4.36"/></svg>
+          情報を更新
+        </button>
+      </div>
+      <div class="content-area">
+        <div class="backup-warn-box">
+          <strong>⚠ 復元を実行すると現在のデータがすべて上書きされます。</strong><br>
+          復元後に元に戻す手段はありません。操作前に内容をよく確認してください。
+        </div>
+        <div class="backup-cards">
+          <div class="backup-card" id="backup-card-1">
+            <div class="backup-card-head">
+              <div class="backup-card-icon b1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <span class="backup-card-title">直近のバックアップ</span>
+            </div>
+            <div class="backup-card-sub" id="backup1-meta">読み込み中…</div>
+            <div class="backup-card-actions">
+              <a class="btn btn-sm btn-ghost" id="backup1-link" href="#" target="_blank" style="pointer-events:none;opacity:0.4">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                内容を確認
+              </a>
+              <button class="btn btn-sm btn-restore" id="backup1-restore-btn" onclick="openRestoreConfirm('backup_1')" disabled style="opacity:0.4;cursor:not-allowed">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                このバックアップに復元
+              </button>
+            </div>
+          </div>
+          <div class="backup-card" id="backup-card-2">
+            <div class="backup-card-head">
+              <div class="backup-card-icon b2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#9C9890" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <span class="backup-card-title">1つ前のバックアップ</span>
+            </div>
+            <div class="backup-card-sub" id="backup2-meta">読み込み中…</div>
+            <div class="backup-card-actions">
+              <a class="btn btn-sm btn-ghost" id="backup2-link" href="#" target="_blank" style="pointer-events:none;opacity:0.4">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                内容を確認
+              </a>
+              <button class="btn btn-sm btn-restore" id="backup2-restore-btn" onclick="openRestoreConfirm('backup_2')" disabled style="opacity:0.4;cursor:not-allowed">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                このバックアップに復元
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="error-banner" id="backup-error"></div>
       </div>
     </div>
 
@@ -532,6 +619,25 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('syn-modal-overlay')">キャンセル</button>
       <button class="btn btn-primary" id="syn-save-btn" onclick="saveSynonym()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Restore Confirm Modal -->
+<div class="overlay" id="restore-overlay" onclick="handleOverlay(event,'restore-overlay')">
+  <div class="restore-confirm-box">
+    <div class="restore-confirm-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h3>バックアップから復元しますか？</h3>
+    <p id="restore-confirm-desc">現在のFAQ・投稿・同義語・管理者データがすべてバックアップの内容に置き換わります。<br>この操作は取り消せません。</p>
+    <label class="restore-confirm-check">
+      <input type="checkbox" id="restore-check" onchange="updateRestoreBtn()">
+      上記の内容を理解し、復元を実行することに同意します
+    </label>
+    <div class="restore-confirm-actions">
+      <button class="btn btn-ghost" onclick="closeModal('restore-overlay')">キャンセル</button>
+      <button class="btn-restore" id="restore-exec-btn" onclick="execRestore()" disabled>復元を実行する</button>
     </div>
   </div>
 </div>
@@ -915,6 +1021,134 @@ function setBackupBar(type, html) {
   bar.className = `backup-status-bar ${type}`;
   bar.innerHTML = html;
   bar.style.display = 'flex';
+}
+
+// ===== バックアップ情報取得・復元セクション =====
+
+// バックアップファイルをDriveから検索してカード情報を更新
+async function refreshBackupSection() {
+  await ensureFreshToken();
+  showBanner('backup-error', '');
+
+  for (const num of [1, 2]) {
+    const name = `FAQ_backup_${num}`;
+    const metaEl = document.getElementById(`backup${num}-meta`);
+    const linkEl = document.getElementById(`backup${num}-link`);
+    const restoreBtn = document.getElementById(`backup${num}-restore-btn`);
+    metaEl.textContent = '読み込み中…';
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='${name}' and trashed=false&fields=files(id,name,modifiedTime)`,
+        { headers: { 'Authorization': `Bearer ${accessToken}` } }
+      );
+      const data = await res.json();
+      const file = (data.files || [])[0];
+      if (file) {
+        const dt = new Date(file.modifiedTime).toLocaleString('ja-JP');
+        metaEl.textContent = `更新日時：${dt}`;
+        linkEl.href = `https://docs.google.com/spreadsheets/d/${file.id}`;
+        linkEl.style.pointerEvents = '';
+        linkEl.style.opacity = '';
+        restoreBtn.disabled = false;
+        restoreBtn.style.opacity = '';
+        restoreBtn.style.cursor = '';
+        restoreBtn.dataset.fileId = file.id;
+        restoreBtn.dataset.fileName = name;
+      } else {
+        metaEl.textContent = 'バックアップなし';
+        linkEl.style.pointerEvents = 'none';
+        linkEl.style.opacity = '0.4';
+        restoreBtn.disabled = true;
+        restoreBtn.style.opacity = '0.4';
+        restoreBtn.style.cursor = 'not-allowed';
+      }
+    } catch(e) {
+      metaEl.textContent = '取得に失敗しました';
+      showBanner('backup-error', `バックアップ情報の取得に失敗しました: ${e.message}`);
+    }
+  }
+}
+
+// 復元確認モーダルを開く
+let restoreTargetFileId = null;
+let restoreTargetName = null;
+
+function openRestoreConfirm(backupKey) {
+  const num = backupKey === 'backup_1' ? 1 : 2;
+  const btn = document.getElementById(`backup${num}-restore-btn`);
+  restoreTargetFileId = btn.dataset.fileId;
+  restoreTargetName = btn.dataset.fileName;
+  const label = num === 1 ? '直近のバックアップ' : '1つ前のバックアップ';
+  document.getElementById('restore-confirm-desc').innerHTML =
+    `<strong>「${label}」</strong>から復元します。<br>現在のFAQ・投稿・同義語・管理者データがすべてバックアップの内容に置き換わります。この操作は取り消せません。`;
+  document.getElementById('restore-check').checked = false;
+  document.getElementById('restore-exec-btn').disabled = true;
+  document.getElementById('restore-overlay').classList.add('show');
+}
+
+function updateRestoreBtn() {
+  document.getElementById('restore-exec-btn').disabled =
+    !document.getElementById('restore-check').checked;
+}
+
+// 復元実行：バックアップSheetの各シートを現行Sheetに上書き
+async function execRestore() {
+  if (!restoreTargetFileId) return;
+  const btn = document.getElementById('restore-exec-btn');
+  btn.disabled = true;
+  btn.textContent = '復元中…';
+  closeModal('restore-overlay');
+  setBackupBar('running', '<div class="backup-spinner"></div> 復元中です。このまましばらくお待ちください…');
+  // ダッシュボードに切り替えて進捗を表示
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-dashboard').classList.add('active');
+  document.querySelector('.nav-item[onclick*="dashboard"]').classList.add('active');
+
+  try {
+    await ensureFreshToken();
+    const sheets = ['faqs', 'submissions', 'synonyms', 'users'];
+
+    for (const sheetName of sheets) {
+      // バックアップSheetからデータ取得
+      const srcRes = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${restoreTargetFileId}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
+      );
+      if (!srcRes.ok) continue; // シートがなければスキップ
+      const srcData = await srcRes.json();
+      const values = srcData.values || [];
+      if (!values.length) continue;
+
+      // 現行Sheetをクリアしてから書き込み
+      await fetch(
+        `${BASE_URL}/${encodeURIComponent(sheetName)}:clear`,
+        { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` } }
+      );
+      await fetch(
+        `${BASE_URL}/${encodeURIComponent(sheetName)}?valueInputOption=USER_ENTERED`,
+        {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ values })
+        }
+      );
+    }
+
+    // ハッシュキャッシュをリセット（次回起動時に差分なしと誤判定しないよう）
+    sessionStorage.removeItem(BACKUP_HASH_KEY);
+
+    setBackupBar('done', '✓ 復元が完了しました。データを再読み込みします…');
+    setTimeout(async () => {
+      await loadAll();
+      setBackupBar('done', `✓ 復元完了 — ${restoreTargetName} から正常に復元されました`);
+      showToast('復元が完了しました');
+    }, 1000);
+
+  } catch(e) {
+    console.error('復元エラー:', e);
+    setBackupBar('error', `⚠ 復元に失敗しました: ${e.message}`);
+    showToast('復元に失敗しました: ' + e.message);
+  }
 }
 
 // ===== データ読み込み =====
@@ -1500,6 +1734,8 @@ function showSection(name, btn) {
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('section-'+name).classList.add('active');
   if (btn) btn.classList.add('active');
+  // バックアップセクションを開いたとき自動でファイル情報を取得
+  if (name === 'backup' && accessToken) refreshBackupSection();
 }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 function handleOverlay(e, id) { if (e.target===document.getElementById(id)) closeModal(id); }
@@ -1512,7 +1748,7 @@ function showToast(msg) {
 }
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') {
-    ['faq-modal-overlay','approve-modal-overlay','user-modal-overlay','syn-modal-overlay'].forEach(id=>closeModal(id));
+    ['faq-modal-overlay','approve-modal-overlay','user-modal-overlay','syn-modal-overlay','restore-overlay'].forEach(id=>closeModal(id));
     cancelConfirm();
   }
 });
