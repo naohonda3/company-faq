@@ -668,12 +668,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
  
 // ===== 管理者タブ =====
 let adminTabRef = null;
- 
+
 function openAdminTab() {
-  if (adminTabRef && !adminTabRef.closed) {
-    adminTabRef.focus();
-  } else {
-    adminTabRef = window.open('faq-admin.html', '_blank');
+  // 名前付きタブ 'faq-admin-win' で開く
+  // 同名タブが既に存在すればそこに表示され、なければ新規タブになる
+  const win = window.open('faq-admin.html', 'faq-admin-win');
+  if (win) {
+    adminTabRef = win;
+    win.focus();
   }
 }
 </script>
