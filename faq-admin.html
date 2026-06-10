@@ -1706,50 +1706,6 @@ function confirmDelete(type, id, msg) {
       }
       if (type === 'user') {
         const u = userRows.find(x=>x.id===id);
-        if (u && u.rowNum > 0) await sheetsDeleteRow('users', u.rowNum);
-        userRows = userRows.filter(x=>x.id!==id);
-        
-        // 修正ポイント：存在しない cancelConfirm ではなく、正しい関数 closeConfirm を呼び出します
-        if (typeof closeConfirm === 'function') {
-          closeConfirm();
-        } else {
-          document.getElementById('confirm-overlay').classList.remove('show');
-        }
-        
-        renderUsers();
-      }
-      if (type === 'synonym') {
-        const s = synonymRows.find(x=>x.id===id);
-        if (s && s.rowNum > 0) await sheetsDeleteRow('synonyms', s.rowNum);
-        synonymRows = synonymRows.filter(x=>x.id!==id);
-        renderSynonyms();
-      }
-      if (typeof updateStats === 'function') updateStats();
-      showToast('削除しました');
-    } catch(e) {
-      showToast('削除に失敗しました: ' + e.message);
-    }
-  };
-}
-
-  document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-overlay').classList.add('show');
-  confirmCallback = async () => {
-    try {
-      if (type === 'faq') {
-        const f = faqRows.find(x=>x.id===id);
-        if (f && f.rowNum > 0) await sheetsDeleteRow('faqs', f.rowNum);
-        faqRows = faqRows.filter(x=>x.id!==id);
-        renderFaqTable(faqRows);
-      }
-      if (type === 'submission') {
-        const s = subRows.find(x=>x.id===id);
-        if (s && s.rowNum > 0) await sheetsUpdate(`submissions!E${s.rowNum}`, ['rejected']);
-        subRows = subRows.filter(x=>x.id!==id);
-        renderSubmissions();
-      }
-      if (type === 'user') {
-        const u = userRows.find(x=>x.id===id);
         if (u && u.rowNum > 0) {
           // 変更ポイント①: 削除実行を確実に待つ
           await sheetsDeleteRow('users', u.rowNum);
