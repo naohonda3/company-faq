@@ -508,35 +508,46 @@ function renderFAQ() {
   const searchInput = document.getElementById('search-input');
   const query = searchInput ? searchInput.value.trim() : '';
   const keywords = expandKeywords(query);
- 
-  const filtered = allFaqs.filter(f => {
-    if (currentCategory !== '全部' && f.category !== currentCategory) return false;
-    if (keywords.length > 0) {
-      const match = keywords.some(k =>
-        f.q.toLowerCase().includes(k) ||
-        f.a.toLowerCase().includes(k) ||
-        f.category.toLowerCase().includes(k)
-      );
-      if (!match) return false;
-    }
-    return true;
+
+  // ① キーワードで全件から検索
+  const keywordMatched = allFaqs.filter(f => {
+    if (keywords.length === 0) return true;
+    return keywords.some(k =>
+      f.q.toLowerCase().includes(k) ||
+      f.a.toLowerCase().includes(k) ||
+      f.category.toLowerCase().includes(k)
+    );
   });
- 
+
+  // ② ①の結果にカテゴリ絞り込みを適用
+  const filtered = currentCategory === '全部'
+    ? keywordMatched
+    : keywordMatched.filter(f => f.category === currentCategory);
+
   const meta = document.getElementById('result-meta');
   if (query) {
     meta.style.display = 'block';
-    document.getElementById('match-count').textContent = filtered.length;
+    // 検索中：全件ヒット数 ＋ カテゴリ絞り込み中なら「カテゴリ内X件」も表示
+    if (currentCategory !== '全部') {
+      document.getElementById('match-count').textContent =
+        `${keywordMatched.length}件中 ${filtered.length}件（${currentCategory}）`;
+    } else {
+      document.getElementById('match-count').textContent = filtered.length;
+    }
   } else {
     meta.style.display = 'none';
   }
- 
+
   const container = document.getElementById('faq-list');
   const empty = document.getElementById('empty-state');
- 
+
   if (filtered.length === 0) {
     container.innerHTML = '';
     empty.classList.add('show');
-    if (query) {
+    if (query && currentCategory !== '全部') {
+      document.getElementById('empty-title').textContent = `「${query}」×「${currentCategory}」に一致するFAQは見つかりませんでした`;
+      document.getElementById('empty-desc').textContent = '「全部」に切り替えると他のカテゴリの結果が見られます。';
+    } else if (query) {
       document.getElementById('empty-title').textContent = `「${query}」に一致するFAQは見つかりませんでした`;
       document.getElementById('empty-desc').textContent = 'キーワードを変えてみるか、管理者へ直接質問を送ることができます。';
     } else {
