@@ -1706,8 +1706,15 @@ function confirmDelete(type, id, msg) {
       }
       if (type === 'user') {
         const u = userRows.find(x=>x.id===id);
-        if (u && u.rowNum > 0) await sheetsDeleteRow('users', u.rowNum);
+        if (u && u.rowNum > 0) {
+          // 変更ポイント①: 削除実行を確実に待つ
+          await sheetsDeleteRow('users', u.rowNum);
+        }
         userRows = userRows.filter(x=>x.id!==id);
+        
+        // 変更ポイント②: 画面描画の前にポップアップを確実に閉じる
+        if (typeof cancelConfirm === 'function') cancelConfirm();
+        
         renderUsers();
       }
       if (type === 'synonym') {
@@ -1716,10 +1723,24 @@ function confirmDelete(type, id, msg) {
         synonymRows = synonymRows.filter(x=>x.id!==id);
         renderSynonyms();
       }
-      updateStats();
+      
+      // 変更ポイント③: エラー回避のため、安全に統計を更新する
+      if (typeof updateStats === 'function') {
+        try {
+          updateStats();
+        } catch(e) {
+          console.warn('統計更新スキップ:', e);
+        }
+      }
+      
       showToast('削除しました');
     } catch(e) {
+      console.error(e);
       showToast('削除に失敗しました: ' + e.message);
+    } finally {
+      // 変更ポイント④: 最終的に必ず確認画面のオーバーレイ（表示）を消去する
+      const overlay = document.getElementById('confirm-overlay');
+      if (overlay) overlay.classList.remove('show');
     }
   };
 }
