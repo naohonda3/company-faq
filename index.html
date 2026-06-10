@@ -444,7 +444,7 @@ async function loadSynonyms() {
   } catch(e) {
     synonymGroups = []; // 取得失敗しても通常検索は動く
   }
-}
+
  
 // ===== 同義語展開：入力ワードに同義語を加えたリストを返す =====
 function expandKeywords(query) {
@@ -517,7 +517,7 @@ async function loadFaqs() {
   } finally {
     showLoading(false);
   }
-}
+
  
 // ===== 投稿をSheetsに書き込む（GAS経由）=====
 async function writeSubmission(name, question) {
