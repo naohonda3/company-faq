@@ -836,7 +836,6 @@ async function sheetsGet(range) {
   const res = await fetch(`${BASE_URL}/${encodeURIComponent(range)}?key=${API_KEY}`);
   if (!res.ok) throw new Error(`GET ${res.status}`);
   return (await res.json()).values || [];
-}
 
 async function sheetsAppend(sheetName, values) {
   await ensureFreshToken();
