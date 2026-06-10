@@ -833,10 +833,6 @@ async function sheetsGet(range) {
   return (await res.json()).values || [];
 }
 
-  const res = await fetch(`${BASE_URL}/${encodeURIComponent(range)}?key=${API_KEY}`);
-  if (!res.ok) throw new Error(`GET ${res.status}`);
-  return (await res.json()).values || [];
-
 async function sheetsAppend(sheetName, values) {
   await ensureFreshToken();
   if (!accessToken) throw new Error('未認証');
@@ -1122,7 +1118,8 @@ async function execRestore() {
     for (const sheetName of sheets) {
       // バックアップSheetからデータ取得
       const srcRes = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${restoreTargetFileId}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
+        `https://sheets.googleapis.com/v4/spreadsheets/${restoreTargetFileId}/values/${encodeURIComponent(sheetName)}`,
+        { headers: { 'Authorization': `Bearer ${accessToken}` } }
       );
       if (!srcRes.ok) continue; // シートがなければスキップ
       const srcData = await srcRes.json();
