@@ -484,18 +484,28 @@ async function writeSubmission(name, question) {
 }
  
 // ===== カテゴリ帯の描画 =====
-function renderCategories() {
-  const cats = new Set(['全部']);
-  allFaqs.forEach(f => { if(f.category.trim()) cats.add(f.category.trim()); });
+// keywordMatched: 検索ヒット済みのFAQ配列（検索中のみ渡す。未検索時はnull）
+function renderCategories(keywordMatched) {
+  const allCats = [...new Set(allFaqs.map(f => f.category).filter(Boolean))];
+
+  // 検索中はヒットしたカテゴリのみ表示、未検索時は全カテゴリ表示
+  const visibleCats = keywordMatched
+    ? allCats.filter(c => keywordMatched.some(f => f.category === c))
+    : allCats;
+
+  // 絞り込み中のカテゴリがヒットなしになったら「全部」に戻す
+  if (keywordMatched && currentCategory !== '全部' && !visibleCats.includes(currentCategory)) {
+    currentCategory = '全部';
+  }
+
   const container = document.getElementById('category-row');
-  container.innerHTML = [...cats].map(c => `
-    <button class="cat-btn ${c===currentCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>
+  container.innerHTML = ['全部', ...visibleCats].map(c => `
+    <button class="cat-btn ${c === currentCategory ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>
   `).join('');
 }
- 
+
 function setCategory(cat) {
   currentCategory = cat;
-  renderCategories();
   renderFAQ();
 }
  
@@ -518,6 +528,9 @@ function renderFAQ() {
       f.category.toLowerCase().includes(k)
     );
   });
+
+  // カテゴリボタンを検索結果に連動して更新
+  renderCategories(query ? keywordMatched : null);
 
   // ② ①の結果にカテゴリ絞り込みを適用
   const filtered = currentCategory === '全部'
