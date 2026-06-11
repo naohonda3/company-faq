@@ -661,6 +661,11 @@ tbody td { padding: 12px 16px; font-size: 13.5px; vertical-align: middle; }
 </div>
 
 <script>
+// このタブ自身に名前をつける。
+// 閲覧画面の openAdminTab() が window.open('faq-admin.html', 'faq-admin-win') で呼び出すため、
+// 管理画面側も同じ名前を持つことで、どのタブから開いても必ず同一タブが再利用される。
+window.name = 'faq-admin-win';
+
 // ===== 設定 =====
 const CLIENT_ID  = '85046650072-6927udqug7t93p1gnd70j8v4nb45qmbb.apps.googleusercontent.com';
 const SHEET_ID   = '14TvzrqwT-Q-Qk1eBG7QnPvY-t0Yu0d5SKa79F2izojE';
