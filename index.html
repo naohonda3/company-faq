@@ -411,6 +411,11 @@ let currentCategory = '全部';
 let openId = null;
  
 // ===== 初期化 =====
+// このタブ自身に名前をつけておく。
+// 管理画面の <a target="faq-viewer"> と名前を一致させることで、
+// 直接開いた閲覧タブと window.open で開いたタブが別物と判定されるのを防ぐ。
+window.name = 'faq-viewer';
+
 document.addEventListener('DOMContentLoaded', () => {
   Promise.all([loadFaqs(), loadSynonyms()]);
 });
@@ -694,10 +699,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
  
 // ===== 管理者タブ =====
 function openAdminTab() {
-  // 第2引数を一意のウィンドウ名にすることで、同一ブラウザ内で1つのタブしか開かなくなります
-  const adminTab = window.open('faq-admin.html', 'faq-admin-target');
-  
-  // すでに開いている場合に、念のため前面に持ってくる処理（ブラウザによって挙動は異なります）
+  // 'faq-admin-win' で管理画面を開く。
+  // 管理画面側も window.name = 'faq-admin-win' と自己申告しているため、
+  // どのタブから呼び出しても必ず同一タブが再利用される。
+  const adminTab = window.open('faq-admin.html', 'faq-admin-win');
   if (adminTab) {
     adminTab.focus();
   }
